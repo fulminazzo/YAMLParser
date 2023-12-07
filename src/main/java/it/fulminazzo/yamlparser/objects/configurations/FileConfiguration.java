@@ -1,0 +1,201 @@
+package it.fulminazzo.yamlparser.objects.configurations;
+
+import it.fulminazzo.yamlparser.interfaces.IConfiguration;
+import it.fulminazzo.yamlparser.objects.yamlelements.ArrayYAMLParser;
+import it.fulminazzo.yamlparser.objects.yamlelements.SerializableYAMLParser;
+import it.fulminazzo.yamlparser.objects.yamlelements.YAMLParser;
+import it.fulminazzo.yamlparser.utils.ClassUtils;
+import it.fulminazzo.yamlparser.utils.FileUtils;
+import it.fulminazzo.reflectionutils.objects.ReflObject;
+import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.representer.Representer;
+
+import java.io.*;
+import java.lang.reflect.Modifier;
+import java.util.*;
+
+/**
+ * Represents a YAML File configuration.
+ */
+public class FileConfiguration extends SimpleConfiguration {
+    private final static LinkedList<YAMLParser<?>> parsers = new LinkedList<>();
+    private final File file;
+
+    /**
+     * Instantiates a new File configuration.
+     *
+     * @param path the path
+     */
+    public FileConfiguration(String path) {
+        this(new File(path));
+    }
+
+    /**
+     * Instantiates a new File configuration.
+     *
+     * @param file the file
+     */
+    public FileConfiguration(File file) {
+        super("", null);
+        this.file = file.getAbsoluteFile();
+        Map<Object, Object> yaml;
+        try {
+            yaml = newYaml().load(new FileInputStream(file));
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        this.map.putAll(IConfiguration.generalToConfigMap(this, yaml));
+        addParsers();
+    }
+
+    /**
+     * Instantiates a new File configuration.
+     *
+     * @param inputStream the input stream
+     */
+    public FileConfiguration(InputStream inputStream) {
+        this(null, inputStream);
+    }
+
+    /**
+     * Instantiates a new File configuration.
+     *
+     * @param file        the file
+     * @param inputStream the input stream
+     */
+    public FileConfiguration(File file, InputStream inputStream) {
+        super("", null);
+        this.file = file == null ? null : file.getAbsoluteFile();
+        Map<Object, Object> yaml = newYaml().load(inputStream);
+        this.map.putAll(IConfiguration.generalToConfigMap(this, yaml));
+        addParsers();
+    }
+
+    /**
+     * Saves the configuration to the file.
+     */
+    public void save() {
+        try {
+            if (!file.exists()) FileUtils.createNewFile(file);
+            FileWriter writer = new FileWriter(file);
+            newYaml().dump(IConfiguration.configToGeneralMap(this), writer);
+            writer.close();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * New yaml yaml.
+     *
+     * @return the YAML with parameters.
+     */
+    public static Yaml newYaml() {
+        DumperOptions dumperOptions = new DumperOptions();
+        dumperOptions.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
+        Representer representer = new Representer(dumperOptions);
+        return new Yaml(representer);
+    }
+
+    /**
+     * Add all the parsers present in the package: ../yamlelements
+     */
+    public static void addParsers() {
+        String packageName = FileConfiguration.class.getPackageName();
+        String[] tmp = packageName.split("\\.");
+        packageName = String.join(".", Arrays.copyOfRange(tmp, 0, tmp.length - 1));
+        addParsers(packageName + ".yamlelements");
+    }
+
+    /**
+     * Add all the parsers present in a package.
+     *
+     * @param packageName the package name
+     */
+    public static void addParsers(String packageName) {
+        addParsers(getParsersFromPackage(packageName).toArray(new YAMLParser[0]));
+    }
+
+    /**
+     * Add parsers.
+     *
+     * @param yamlParsers the YAML parsers
+     */
+    public static void addParsers(YAMLParser<?>... yamlParsers) {
+        for (YAMLParser<?> yamlParser : yamlParsers)
+            if (yamlParser != null && parsers.stream().noneMatch(p -> p.getOClass().equals(yamlParser.getOClass())))
+                parsers.addLast(yamlParser);
+    }
+
+    /**
+     * Remove parsers.
+     *
+     * @param packageName the package name
+     */
+    public static void removeParsers(String packageName) {
+        removeParsers(getParsersFromPackage(packageName).toArray(new YAMLParser[0]));
+    }
+
+    /**
+     * Remove all the parsers present in a package.
+     *
+     * @param yamlParsers the YAML parsers
+     */
+    public static void removeParsers(YAMLParser<?>... yamlParsers) {
+        for (YAMLParser<?> yamlParser : yamlParsers)
+            if (yamlParser != null) parsers.removeIf(p -> p.getOClass().equals(yamlParser.getOClass()));
+    }
+
+    /**
+     * Gets all the parsers from package.
+     *
+     * @param packageName the package name
+     * @return the parsers from package
+     */
+    @SuppressWarnings("unchecked")
+    public static List<YAMLParser<?>> getParsersFromPackage(String packageName) {
+        Set<Class<?>> classes = ClassUtils.findClassesInPackage(packageName);
+        List<YAMLParser<?>> yamlParsers = new ArrayList<>();
+        for (Class<?> clazz : classes)
+            if (YAMLParser.class.isAssignableFrom(clazz))
+                try {
+                    clazz.getConstructor();
+                    if (Modifier.isFinal(clazz.getModifiers()) || Modifier.isAbstract(clazz.getModifiers())) continue;
+                    ReflObject<YAMLParser<?>> parserReflObject = new ReflObject<YAMLParser<?>>((Class<YAMLParser<?>>) clazz);
+                    YAMLParser<?> parser = parserReflObject.getObject();
+                    if (parser != null) yamlParsers.add(parser);
+                } catch (NoSuchMethodException ignored) {}
+        return yamlParsers;
+    }
+
+    /**
+     * Gets the parser from the associated class.
+     *
+     * @param <O>    the type parameter
+     * @param oClass the class
+     * @return the parser
+     */
+    @SuppressWarnings("unchecked")
+    public static <O> YAMLParser<O> getParser(Class<O> oClass) {
+        if (oClass == null) return null;
+        if (oClass.isArray()) return (YAMLParser<O>) getParsers().stream()
+                .filter(p -> p instanceof ArrayYAMLParser<?>)
+                .findFirst().orElse(new ArrayYAMLParser<>());
+        return (YAMLParser<O>) getParsers().stream()
+                .filter(p -> p.getOClass().isAssignableFrom(oClass))
+                .findFirst().orElse(null);
+    }
+
+    public static LinkedList<YAMLParser<?>> getParsers() {
+        parsers.removeIf(s -> s instanceof SerializableYAMLParser);
+        parsers.add(new SerializableYAMLParser());
+        return parsers;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("{file: %s, non-null: %s}",
+                file == null ? null : file.getAbsolutePath(), nonNull);
+    }
+}
