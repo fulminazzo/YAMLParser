@@ -7,7 +7,24 @@ import java.net.URISyntaxException;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
+/**
+ * The type Jar utils.
+ */
 public class JarUtils {
+
+    /**
+     * Gets a resource from the current jar file.
+     *
+     * @param resourceName the resource name
+     * @return the resource
+     */
+    public static InputStream getResource(String resourceName) {
+        if (resourceName == null) return null;
+        if (resourceName.startsWith("/")) resourceName = resourceName.substring(1);
+        InputStream resource = JarUtils.class.getResourceAsStream(resourceName);
+        if (resource == null) resource = JarUtils.class.getResourceAsStream("/" + resourceName);
+        return resource;
+    }
 
     /**
      * Returns the file at the specified path from the given File.

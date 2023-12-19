@@ -1,13 +1,13 @@
 package it.fulminazzo.yamlparser.objects.yamlelements;
 
 import it.angrybear.annotations.PreventSaving;
-import it.fulminazzo.yamlparser.interfaces.IConfiguration;
 import it.angrybear.interfaces.functions.BiFunctionException;
 import it.angrybear.interfaces.functions.FunctionException;
 import it.angrybear.interfaces.functions.TriConsumer;
-import it.fulminazzo.yamlparser.objects.configurations.ConfigurationSection;
-import it.angrybear.utils.StringUtils;
 import it.fulminazzo.reflectionutils.objects.ReflObject;
+import it.fulminazzo.yamlparser.interfaces.IConfiguration;
+import it.fulminazzo.yamlparser.objects.configurations.ConfigurationSection;
+import it.fulminazzo.yamlparser.utils.FileUtils;
 
 import java.lang.reflect.Field;
 
@@ -40,7 +40,7 @@ public class CallableYAMLParser<T> extends YAMLParser<T> {
             ReflObject<T> tReflObject = new ReflObject<>(t);
             for (Field field : tReflObject.getFields()) {
                 if (field.isAnnotationPresent(PreventSaving.class)) continue;
-                Object object = section.get(StringUtils.formatStringToYaml(field.getName()), field.getType());
+                Object object = section.get(FileUtils.formatStringToYaml(field.getName()), field.getType());
                 if (object == null) continue;
                 tReflObject.setField(field.getName(), object);
             }

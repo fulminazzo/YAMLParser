@@ -1,6 +1,6 @@
 package it.fulminazzo.yamlparser.exceptions.yamlexceptions;
 
-import it.angrybear.enums.BearLoggingMessage;
+import it.fulminazzo.yamlparser.enums.LogMessage;
 
 /**
  * Exception used in ArrayYAMLParser.
@@ -11,6 +11,6 @@ import it.angrybear.enums.BearLoggingMessage;
  */
 public class EmptyArrayException extends YAMLException {
     public EmptyArrayException(String path, String name, Object object) {
-        super(path, name, object, BearLoggingMessage.CANNOT_DECIPHER_EMPTY_ARRAY);
+        super(path, name, object, LogMessage.CANNOT_DECIPHER_EMPTY_ARRAY);
     }
 }

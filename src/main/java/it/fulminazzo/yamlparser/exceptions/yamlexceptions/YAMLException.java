@@ -1,6 +1,6 @@
 package it.fulminazzo.yamlparser.exceptions.yamlexceptions;
 
-import it.angrybear.enums.BearLoggingMessage;
+import it.fulminazzo.yamlparser.enums.LogMessage;
 import lombok.Getter;
 
 /**
@@ -14,12 +14,12 @@ public abstract class YAMLException extends RuntimeException {
     private final Object object;
 
     public YAMLException(String path, String name, Object object,
-                         BearLoggingMessage message, String... strings) {
+                         LogMessage message, String... strings) {
         this(path, name, object, message.getMessage(strings));
     }
 
     public YAMLException(String path, String name, Object object, String message) {
-        super(BearLoggingMessage.YAML_ERROR.getMessage(
+        super(LogMessage.YAML_ERROR.getMessage(
                 "%path%", path.isEmpty() ? "" : path + ".", "%name%", name,
                 "%object%", object == null ? null : object.toString(), "%message%", message
         ));

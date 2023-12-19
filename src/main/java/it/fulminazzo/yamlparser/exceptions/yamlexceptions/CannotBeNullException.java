@@ -1,6 +1,6 @@
 package it.fulminazzo.yamlparser.exceptions.yamlexceptions;
 
-import it.angrybear.enums.BearLoggingMessage;
+import it.fulminazzo.yamlparser.enums.LogMessage;
 
 /**
  * Exception thrown when an object from
@@ -10,6 +10,6 @@ import it.angrybear.enums.BearLoggingMessage;
 public class CannotBeNullException extends YAMLException {
 
     public CannotBeNullException(String path, String name, String objectName) {
-        super(path, name, null, BearLoggingMessage.GENERAL_CANNOT_BE_NULL, "%object%", objectName);
+        super(path, name, null, LogMessage.GENERAL_CANNOT_BE_NULL, "%object%", objectName);
     }
 }

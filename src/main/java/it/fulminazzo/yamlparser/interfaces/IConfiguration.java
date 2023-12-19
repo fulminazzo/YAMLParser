@@ -4,6 +4,7 @@ import it.fulminazzo.yamlparser.exceptions.yamlexceptions.CannotBeNullException;
 import it.fulminazzo.yamlparser.exceptions.yamlexceptions.UnexpectedClassException;
 import it.fulminazzo.yamlparser.objects.configurations.ConfigurationSection;
 import it.fulminazzo.yamlparser.objects.configurations.FileConfiguration;
+import it.fulminazzo.yamlparser.objects.configurations.checkers.ConfigurationChecker;
 import it.fulminazzo.yamlparser.objects.yamlelements.YAMLParser;
 import it.fulminazzo.yamlparser.utils.EnumUtils;
 import it.fulminazzo.reflectionutils.utils.ReflUtil;
@@ -47,11 +48,12 @@ public interface IConfiguration {
         Map<String, Object> map = toMap();
         List<String> keys = new ArrayList<>(map.keySet());
         if (deep)
-            for (Map.Entry<String, Object> entry : map.entrySet()) {
+            for (Map.Entry<String, Object> entry : new ArrayList<>(map.entrySet())) {
                 Object value = entry.getValue();
-                if (value instanceof IConfiguration)
+                if (value instanceof IConfiguration) {
                     keys.addAll(((IConfiguration) value).getKeys(true).stream()
                             .map(c -> entry.getKey() + "." + c).collect(Collectors.toList()));
+                }
             }
         return new HashSet<>(keys);
     }
@@ -883,9 +885,20 @@ public interface IConfiguration {
     default <T> boolean check(String name, Object object, Class<T> clazz) {
         if (clazz == null) throw new CannotBeNullException(getCurrentPath(), "null", "Class");
         if (object == null && checkNonNull()) throw new CannotBeNullException(getCurrentPath(), name, name);
-        if (object != null && !ReflUtil.getPrimitiveClass(clazz).isAssignableFrom(ReflUtil.getPrimitiveClass(object.getClass())))
-                throw new UnexpectedClassException(getCurrentPath(), name, object, clazz.getSimpleName());
-        return true;
+        if (object == null) return true;
+        if (clazz.isAssignableFrom(object.getClass())) return true;
+        if (ReflUtil.getPrimitiveClass(clazz).isAssignableFrom(ReflUtil.getPrimitiveClass(object.getClass()))) return true;
+        throw new UnexpectedClassException(getCurrentPath(), name, object, clazz.getSimpleName());
+    }
+
+    /**
+     * Compares this configuration with another.
+     *
+     * @param configuration the configuration
+     * @return the result of the comparison as configuration checker
+     */
+    default ConfigurationChecker compare(IConfiguration configuration, String... ignore) {
+        return new ConfigurationChecker(this, configuration, ignore);
     }
 
     /**

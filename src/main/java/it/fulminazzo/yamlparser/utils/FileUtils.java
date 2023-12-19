@@ -1,6 +1,6 @@
 package it.fulminazzo.yamlparser.utils;
 
-import it.angrybear.enums.BearLoggingMessage;
+import it.fulminazzo.yamlparser.enums.LogMessage;
 
 import java.io.*;
 import java.util.Scanner;
@@ -40,7 +40,7 @@ public class FileUtils {
     public static void createNewFile(File file) throws IOException {
         if (!file.getParentFile().exists()) createFolder(file.getParentFile());
         if (!file.createNewFile())
-            throw new IOException(BearLoggingMessage.FILE_CREATE_ERROR.getMessage("%file%", file.getName()));
+            throw new IOException(LogMessage.FILE_CREATE_ERROR.getMessage("%file%", file.getName()));
     }
 
     /**
@@ -53,7 +53,7 @@ public class FileUtils {
         File parent = folder.getParentFile();
         if (parent != null && !parent.exists()) createFolder(parent);
         if (!folder.mkdir())
-            throw new IOException(BearLoggingMessage.FOLDER_CREATE_ERROR.getMessage("%folder%", folder.getName()));
+            throw new IOException(LogMessage.FOLDER_CREATE_ERROR.getMessage("%folder%", folder.getName()));
     }
 
     /**
@@ -86,7 +86,7 @@ public class FileUtils {
      */
     public static void renameFile(File fileFrom, File fileTo) throws IOException {
         if (!fileFrom.renameTo(fileTo))
-            throw new IOException(BearLoggingMessage.FILE_RENAME_ERROR.getMessage("%file%", fileFrom.getName()));
+            throw new IOException(LogMessage.FILE_RENAME_ERROR.getMessage("%file%", fileFrom.getName()));
     }
 
     /**
@@ -97,7 +97,7 @@ public class FileUtils {
      */
     public static void deleteFile(File file) throws IOException {
         if (!file.delete())
-            throw new IOException(BearLoggingMessage.FILE_DELETE_ERROR.getMessage("%file%", file.getName()));
+            throw new IOException(LogMessage.FILE_DELETE_ERROR.getMessage("%file%", file.getName()));
     }
 
     /**
@@ -124,7 +124,7 @@ public class FileUtils {
                 if (file.isDirectory()) recursiveDelete(file);
                 else deleteFile(file);
         if (!folder.delete())
-            throw new IOException(BearLoggingMessage.FOLDER_DELETE_ERROR.getMessage("%folder%", folder.getName()));
+            throw new IOException(LogMessage.FOLDER_DELETE_ERROR.getMessage("%folder%", folder.getName()));
     }
 
     /**
@@ -145,5 +145,22 @@ public class FileUtils {
         } catch (FileNotFoundException e) {
             return false;
         }
+    }
+
+    /**
+     * Converts a string into kebab-case.
+     * For example, if the string is "CamelCase", it will be
+     * converted into "kebab-case".
+     *
+     * @param string the string to convert
+     * @return the converted string
+     */
+    public static String formatStringToYaml(String string) {
+        StringBuilder result = new StringBuilder();
+        for (String s : string.split("")) {
+            if (s.equals(s.toUpperCase()) && !result.toString().isEmpty()) result.append("-");
+            result.append(s.toLowerCase());
+        }
+        return result.toString();
     }
 }

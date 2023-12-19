@@ -1,6 +1,6 @@
 package it.fulminazzo.yamlparser.exceptions.yamlexceptions;
 
-import it.angrybear.enums.BearLoggingMessage;
+import it.fulminazzo.yamlparser.enums.LogMessage;
 
 /**
  * This exception occurs when loading an object
@@ -10,7 +10,7 @@ import it.angrybear.enums.BearLoggingMessage;
 public class UnexpectedClassException extends YAMLException {
 
     public UnexpectedClassException(String path, String name, Object object, String expected) {
-        super(path, name, object, BearLoggingMessage.UNEXPECTED_CLASS.getMessage(
+        super(path, name, object, LogMessage.UNEXPECTED_CLASS.getMessage(
                 "%expected%", expected,
                 "%received%", object == null ? "null" : object.getClass().getSimpleName()
         ));
