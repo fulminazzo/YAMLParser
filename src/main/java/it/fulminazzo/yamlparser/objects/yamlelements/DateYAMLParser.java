@@ -1,8 +1,8 @@
 package it.fulminazzo.yamlparser.objects.yamlelements;
 
 import it.fulminazzo.yamlparser.interfaces.IConfiguration;
-import it.angrybear.interfaces.functions.BiFunctionException;
-import it.angrybear.interfaces.functions.TriConsumer;
+import it.fulminazzo.fulmicollection.interfaces.functions.BiFunctionException;
+import it.fulminazzo.fulmicollection.interfaces.functions.TriConsumer;
 
 import java.util.Date;
 

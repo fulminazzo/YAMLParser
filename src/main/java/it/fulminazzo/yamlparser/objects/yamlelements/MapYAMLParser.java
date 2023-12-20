@@ -2,8 +2,8 @@ package it.fulminazzo.yamlparser.objects.yamlelements;
 
 import it.fulminazzo.reflectionutils.utils.ReflUtil;
 import it.fulminazzo.yamlparser.interfaces.IConfiguration;
-import it.angrybear.interfaces.functions.BiFunctionException;
-import it.angrybear.interfaces.functions.TriConsumer;
+import it.fulminazzo.fulmicollection.interfaces.functions.BiFunctionException;
+import it.fulminazzo.fulmicollection.interfaces.functions.TriConsumer;
 import it.fulminazzo.yamlparser.objects.configurations.ConfigurationSection;
 import it.fulminazzo.yamlparser.utils.SerializeUtils;
 

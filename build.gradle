@@ -1,17 +1,18 @@
 plugins {
     id 'java'
-    id 'application'
 
     id 'com.github.johnrengelman.shadow' version '8.1.1'
     id 'maven-publish'
 }
 
 group = 'it.fulminazzo'
-version = '1.1'
+version = '1.2'
 
 repositories {
     mavenCentral()
-    mavenLocal()
+    maven {
+        url 'https://jitpack.io'
+    }
 }
 
 dependencies {
@@ -20,8 +21,7 @@ dependencies {
 
     implementation('org.yaml:snakeyaml:2.2')
 
-    implementation('it.angrybear.BearCommands:basic:9.0')
-    implementation('it.fulminazzo:ReflectionUtils:1.2')
+    implementation('com.github.fulminazzo:FulmiCollection:1.0')
 }
 
 shadowJar {
@@ -33,7 +33,23 @@ shadowJar {
     minimize()
 }
 
+tasks.register('sourcesJar', Jar) {
+    from sourceSets.main.allJava
+    archiveClassifier = 'sources'
+}
+
+tasks.register('javadocJar', Jar) {
+    from javadoc
+    archiveClassifier = 'javadoc'
+}
+
 jar {
+    manifest {
+        attributes(
+                "Main-Class": "${project.group}.${project.name.toLowerCase()}.${project.name}",
+                "Manifest-Version": "${project.version}"
+        )
+    }
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     archiveFileName = "${project.name}-${project.version}-original.jar"
     dependsOn(shadowJar)
@@ -43,12 +59,10 @@ publishing {
     publications {
         maven(MavenPublication) {
             from components.java
+            artifact sourcesJar
+            artifact javadocJar
         }
     }
-}
-
-application {
-    mainClass = 'it.fulminazzo.yamlparser.YAMLMain'
 }
 
 build {

@@ -1,0 +1,46 @@
+# Name of the action
+name: Automatic Release
+
+# Event to run on
+on:
+  # Will run on every push in the "main" branch
+  push:
+    branches:
+    - main
+
+permissions:
+  contents: write
+
+# Jobs that will execute
+jobs:
+  release:
+    name: Release pushed tag
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout repo to bring the script to the repository directory
+      - name: checkout repo
+        uses: actions/checkout@v4
+      - uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          # Using Java 17 to enable usage of < and > in JavaDoc
+          java-version: 17
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+      - name: Execute Gradle build
+        run: "./gradlew build"
+      - name: Create release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPOSITORY_NAME: ${{ github.event.repository.name }}
+          # Message specified in the commit
+          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+        run: |
+          version=$(grep -Po "(?<=version = (\"|'))([^'\"]+)" build.gradle) && \
+          java -jar build/libs/$REPOSITORY_NAME-$version.jar && \
+          test "$(gh release list | grep -F "$version")" != "" && gh release delete "$version"; \
+          gh release create "$version" \
+              --repo="$GITHUB_REPOSITORY" \
+              --title="$REPOSITORY_NAME $version" \
+              --notes="$COMMIT_MESSAGE" \
+              --latest build/libs/$REPOSITORY_NAME-$version.jar

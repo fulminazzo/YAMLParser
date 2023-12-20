@@ -1,6 +1,6 @@
 package it.fulminazzo.yamlparser.objects.configurations.checkers;
 
-import it.angrybear.exceptions.GeneralCannotBeNullException;
+import it.fulminazzo.fulmicollection.exceptions.GeneralCannotBeNullException;
 import it.fulminazzo.yamlparser.interfaces.IConfiguration;
 import lombok.Getter;
 

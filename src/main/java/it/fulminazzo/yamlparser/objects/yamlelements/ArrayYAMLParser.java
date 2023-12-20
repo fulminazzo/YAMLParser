@@ -2,8 +2,8 @@ package it.fulminazzo.yamlparser.objects.yamlelements;
 
 import it.fulminazzo.yamlparser.exceptions.yamlexceptions.EmptyArrayException;
 import it.fulminazzo.yamlparser.interfaces.IConfiguration;
-import it.angrybear.interfaces.functions.BiFunctionException;
-import it.angrybear.interfaces.functions.TriConsumer;
+import it.fulminazzo.fulmicollection.interfaces.functions.BiFunctionException;
+import it.fulminazzo.fulmicollection.interfaces.functions.TriConsumer;
 
 import java.lang.reflect.Array;
 import java.util.Arrays;

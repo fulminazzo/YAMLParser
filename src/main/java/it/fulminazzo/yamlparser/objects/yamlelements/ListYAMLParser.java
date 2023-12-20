@@ -1,7 +1,7 @@
 package it.fulminazzo.yamlparser.objects.yamlelements;
 
 import it.fulminazzo.yamlparser.interfaces.IConfiguration;
-import it.angrybear.interfaces.functions.BiFunctionException;
+import it.fulminazzo.fulmicollection.interfaces.functions.BiFunctionException;
 
 import java.util.ArrayList;
 import java.util.List;

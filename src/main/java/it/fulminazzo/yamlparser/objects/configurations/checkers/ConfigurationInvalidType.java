@@ -1,7 +1,7 @@
 package it.fulminazzo.yamlparser.objects.configurations.checkers;
 
+import it.fulminazzo.fulmicollection.exceptions.ClassCannotBeNullException;
 import it.fulminazzo.yamlparser.enums.LogMessage;
-import it.angrybear.exceptions.ClassCannotBeNullException;
 import lombok.Getter;
 
 /**
