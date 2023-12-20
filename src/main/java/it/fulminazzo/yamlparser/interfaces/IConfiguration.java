@@ -897,6 +897,7 @@ public interface IConfiguration {
      * Compares this configuration with another.
      *
      * @param configuration the configuration
+     * @param ignore        the keys to ignore during checking
      * @return the result of the comparison as configuration checker
      */
     default ConfigurationChecker compare(IConfiguration configuration, String... ignore) {

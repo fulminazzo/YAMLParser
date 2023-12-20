@@ -46,7 +46,7 @@ tasks.register('javadocJar', Jar) {
 jar {
     manifest {
         attributes(
-                "Main-Class": "${project.group}.${project.name.toLowerCase()}.${project.name}",
+                "Main-Class": "${project.group}.${project.name.toLowerCase()}.YAMLMain",
                 "Manifest-Version": "${project.version}"
         )
     }

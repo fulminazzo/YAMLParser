@@ -102,7 +102,7 @@ public class FileConfiguration extends SimpleConfiguration {
      * Add all the parsers present in the package: ../yamlelements
      */
     public static void addParsers() {
-        String packageName = FileConfiguration.class.getPackageName();
+        String packageName = FileConfiguration.class.getPackage().getName();
         String[] tmp = packageName.split("\\.");
         packageName = String.join(".", Arrays.copyOfRange(tmp, 0, tmp.length - 1));
         addParsers(packageName + ".yamlelements");
