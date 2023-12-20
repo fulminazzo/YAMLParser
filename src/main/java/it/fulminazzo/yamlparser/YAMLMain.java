@@ -10,7 +10,7 @@ public class YAMLMain {
                 "but it should be imported in your project.\n" +
                 "\n" +
                 "If you do not know where to start, check out the following links:\n" +
-                "https://github.com/Fulminazzo/YAMLParser (Official Documentation) ";
+                "https://github.com/Fulminazzo/YAMLParser (Official Documentation)";
         System.err.println(bannerMessage);
     }
 }
