@@ -37,11 +37,4 @@ jobs:
           # Message specified in the commit
           COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
         run: |
-          version=$(grep -Po "(?<=version = (\"|'))([^'\"]+)" build.gradle) && \
-          java -jar build/libs/$REPOSITORY_NAME-$version.jar && \
-          test "$(gh release list | grep -F "$version")" != "" && gh release delete "$version" && gh api repos/:owner/:repo/git/refs/tags/${version} -X DELETE; \
-          gh release create "$version" \
-              --repo="$GITHUB_REPOSITORY" \
-              --title="$REPOSITORY_NAME $version" \
-              --notes="$COMMIT_MESSAGE" \
-              --latest build/libs/$REPOSITORY_NAME-$version.jar
+          curl https://raw.githubusercontent.com/Fulminazzo/AutomaticRelease/main/release.sh | bash
