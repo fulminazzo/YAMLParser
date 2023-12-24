@@ -21,7 +21,7 @@ dependencies {
 
     implementation('org.yaml:snakeyaml:2.2')
 
-    implementation('com.github.Fulminazzo:FulmiCollection:1.0')
+    implementation('com.github.Fulminazzo:FulmiCollection:1.1')
 }
 
 shadowJar {

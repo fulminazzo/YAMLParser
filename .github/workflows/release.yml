@@ -14,27 +14,15 @@ permissions:
 # Jobs that will execute
 jobs:
   release:
-    name: Release pushed tag
+    name: Setup Environment, Build JAR and Release Project
     runs-on: ubuntu-latest
     steps:
-      # Checkout repo to bring the script to the repository directory
-      - name: Checkout repo
-        uses: actions/checkout@v4
-      - name: Setup Java
-        uses: actions/setup-java@v3
+      - name: Automatic Release
+        uses: Fulminazzo/java-automatic-release@v1
         with:
-          distribution: temurin
-          # Using Java 17 to enable usage of < and > in JavaDoc
-          java-version: 17
-      - name: Setup Gradle
-        uses: gradle/gradle-build-action@v2
-      - name: Execute Gradle build
-        run: "./gradlew build"
-      - name: Delete previous and create new release
+          java-version: 8
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPOSITORY_NAME: ${{ github.event.repository.name }}
           # Message specified in the commit
           COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
-        run: |
-          curl https://raw.githubusercontent.com/Fulminazzo/AutomaticRelease/main/release.sh | bash
