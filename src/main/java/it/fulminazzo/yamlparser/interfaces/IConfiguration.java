@@ -1,12 +1,12 @@
 package it.fulminazzo.yamlparser.interfaces;
 
+import it.fulminazzo.fulmicollection.utils.EnumUtils;
 import it.fulminazzo.yamlparser.exceptions.yamlexceptions.CannotBeNullException;
 import it.fulminazzo.yamlparser.exceptions.yamlexceptions.UnexpectedClassException;
 import it.fulminazzo.yamlparser.objects.configurations.ConfigurationSection;
 import it.fulminazzo.yamlparser.objects.configurations.FileConfiguration;
 import it.fulminazzo.yamlparser.objects.configurations.checkers.ConfigurationChecker;
 import it.fulminazzo.yamlparser.objects.yamlelements.YAMLParser;
-import it.fulminazzo.yamlparser.utils.EnumUtils;
 import it.fulminazzo.reflectionutils.utils.ReflUtil;
 
 import java.util.*;

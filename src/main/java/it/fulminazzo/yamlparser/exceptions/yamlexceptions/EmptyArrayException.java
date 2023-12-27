@@ -1,6 +1,8 @@
 package it.fulminazzo.yamlparser.exceptions.yamlexceptions;
 
 import it.fulminazzo.yamlparser.enums.LogMessage;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Exception used in ArrayYAMLParser.
@@ -10,7 +12,7 @@ import it.fulminazzo.yamlparser.enums.LogMessage;
  * thrown.
  */
 public class EmptyArrayException extends YAMLException {
-    public EmptyArrayException(String path, String name, Object object) {
+    public EmptyArrayException(@NotNull String path, @NotNull String name, @Nullable Object object) {
         super(path, name, object, LogMessage.CANNOT_DECIPHER_EMPTY_ARRAY);
     }
 }

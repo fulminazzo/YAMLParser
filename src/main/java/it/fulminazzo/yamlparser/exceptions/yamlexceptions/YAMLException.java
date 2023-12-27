@@ -2,6 +2,8 @@ package it.fulminazzo.yamlparser.exceptions.yamlexceptions;
 
 import it.fulminazzo.yamlparser.enums.LogMessage;
 import lombok.Getter;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * A general exception that occurs many times
@@ -13,12 +15,12 @@ public abstract class YAMLException extends RuntimeException {
     private final String name;
     private final Object object;
 
-    public YAMLException(String path, String name, Object object,
-                         LogMessage message, String... strings) {
+    public YAMLException(@NotNull String path, @NotNull String name, @Nullable Object object,
+                         @NotNull LogMessage message, @Nullable String... strings) {
         this(path, name, object, message.getMessage(strings));
     }
 
-    public YAMLException(String path, String name, Object object, String message) {
+    public YAMLException(@NotNull String path, @NotNull String name, @Nullable Object object, @NotNull String message) {
         super(LogMessage.YAML_ERROR.getMessage(
                 "%path%", path.isEmpty() ? "" : path + ".", "%name%", name,
                 "%object%", object == null ? null : object.toString(), "%message%", message
@@ -27,5 +29,4 @@ public abstract class YAMLException extends RuntimeException {
         this.name = name;
         this.object = object;
     }
-
 }

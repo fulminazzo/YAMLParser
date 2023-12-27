@@ -1,6 +1,8 @@
 package it.fulminazzo.yamlparser.exceptions.yamlexceptions;
 
 import it.fulminazzo.yamlparser.enums.LogMessage;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * This exception occurs when loading an object
@@ -9,7 +11,7 @@ import it.fulminazzo.yamlparser.enums.LogMessage;
  */
 public class UnexpectedClassException extends YAMLException {
 
-    public UnexpectedClassException(String path, String name, Object object, String expected) {
+    public UnexpectedClassException(@NotNull String path, @NotNull String name, @Nullable Object object, @NotNull String expected) {
         super(path, name, object, LogMessage.UNEXPECTED_CLASS.getMessage(
                 "%expected%", expected,
                 "%received%", object == null ? "null" : object.getClass().getSimpleName()

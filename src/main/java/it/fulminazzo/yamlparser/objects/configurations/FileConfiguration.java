@@ -1,10 +1,10 @@
 package it.fulminazzo.yamlparser.objects.configurations;
 
+import it.fulminazzo.reflectionutils.utils.ClassUtils;
 import it.fulminazzo.yamlparser.interfaces.IConfiguration;
 import it.fulminazzo.yamlparser.objects.yamlelements.ArrayYAMLParser;
 import it.fulminazzo.yamlparser.objects.yamlelements.SerializableYAMLParser;
 import it.fulminazzo.yamlparser.objects.yamlelements.YAMLParser;
-import it.fulminazzo.yamlparser.utils.ClassUtils;
 import it.fulminazzo.yamlparser.utils.FileUtils;
 import it.fulminazzo.reflectionutils.objects.ReflObject;
 import org.yaml.snakeyaml.DumperOptions;
@@ -18,6 +18,7 @@ import java.util.*;
 /**
  * Represents a YAML File configuration.
  */
+//TODO: fromString()
 public class FileConfiguration extends SimpleConfiguration {
     private final static LinkedList<YAMLParser<?>> parsers = new LinkedList<>();
     private final File file;

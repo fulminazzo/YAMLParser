@@ -1,9 +1,9 @@
 package it.fulminazzo.yamlparser.objects.yamlelements;
 
+import it.fulminazzo.fulmicollection.utils.SerializeUtils;
 import it.fulminazzo.yamlparser.interfaces.IConfiguration;
 import it.fulminazzo.fulmicollection.interfaces.functions.BiFunctionException;
 import it.fulminazzo.fulmicollection.interfaces.functions.TriConsumer;
-import it.fulminazzo.yamlparser.utils.SerializeUtils;
 
 import java.io.Serializable;
 

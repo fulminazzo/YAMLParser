@@ -1,27 +1,26 @@
 package it.fulminazzo.yamlparser.enums;
 
 
-public class LogMessage {
-    public static final LogMessage GENERAL_CANNOT_BE_NULL = new LogMessage("%object% cannot be null");
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-    public static final LogMessage FILE_CREATE_ERROR = new LogMessage("There was an error while creating file \"%file%\"!");
-    public static final LogMessage FOLDER_CREATE_ERROR = new LogMessage("There was an error while creating folder \"%folder%\"!");
-    public static final LogMessage FILE_RENAME_ERROR = new LogMessage("There was an error while renaming file \"%file%\"!");
-    public static final LogMessage FILE_DELETE_ERROR = new LogMessage("There was an error while deleting file \"%file%\"!");
-    public static final LogMessage FOLDER_DELETE_ERROR = new LogMessage("There was an error while deleting folder \"%folder%\"!");
+public enum LogMessage {
+    GENERAL_CANNOT_BE_NULL("%object% cannot be null"),
 
-    public static final LogMessage YAML_ERROR = new LogMessage("Error found at \"%path%%name%\" for object \"%object%\": %message%");
-    public static final LogMessage UNEXPECTED_CLASS = new LogMessage("Expected class %expected% but got %received%.");
-    public static final LogMessage CANNOT_DECIPHER_EMPTY_ARRAY = new LogMessage("Cannot parse empty array. Type conversion will result in errors");
+    FILE_CREATE_ERROR("There was an error while creating file \"%file%\"!"),
+    FOLDER_CREATE_ERROR("There was an error while creating folder \"%folder%\"!"),
+    FILE_RENAME_ERROR("There was an error while renaming file \"%file%\"!"),
+    FILE_DELETE_ERROR("There was an error while deleting file \"%file%\"!"),
+    FOLDER_DELETE_ERROR("There was an error while deleting folder \"%folder%\"!"),
+
+    YAML_ERROR("Error found at \"%path%%name%\" for object \"%object%\": %message%"),
+    UNEXPECTED_CLASS("Expected class %expected% but got %received%."),
+    CANNOT_DECIPHER_EMPTY_ARRAY("Cannot parse empty array. Type conversion will result in errors");
 
     private final String message;
 
-    public LogMessage(String message) {
+    LogMessage(@NotNull String message) {
         this.message = message;
-    }
-
-    public LogMessage(LogMessage logMessage, String... strings) {
-        this.message = logMessage.getMessage(strings);
     }
 
     /**
@@ -31,15 +30,22 @@ public class LogMessage {
      * will convert the string
      * "hello friend!" in "world friend!"
      *
-     * @param strings the to-replace replacement pairs of strings
+     * @param replacements the to-replace replacement pairs of strings
      * @return the final message
      */
-    public String getMessage(String... strings) {
+    @NotNull
+    public String getMessage(@Nullable String... replacements) {
+        if (replacements == null) return message;
         String tmp = message;
-        if (strings.length > 1)
-            for (int i = 0; i < strings.length; i += 2)
-                if (strings[i] != null)
-                    tmp = tmp.replace(strings[i], strings[i + 1] == null ? "null" : strings[i + 1]);
+        if (replacements.length > 1)
+            for (int i = 0; i < replacements.length - 1; i += 2) {
+                String from = replacements[i];
+                if (from == null) continue;
+                if (!from.startsWith("%")) from = "%" + from;
+                if (!from.endsWith("%")) from = from + "%";
+                String to = replacements[i + 1] == null ? "null" : replacements[i + 1];
+                tmp = tmp.replace(from, to);
+            }
         return tmp;
     }
 }
