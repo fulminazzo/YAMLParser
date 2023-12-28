@@ -1,5 +1,6 @@
 package it.fulminazzo.yamlparser.enums;
 
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -16,7 +17,7 @@ class LogMessageTest {
         logMessage = LogMessage.YAML_ERROR;
     }
 
-    private static Object[] getTestValues() {
+    private static Object @NotNull [] getTestValues() {
         return new Object[]{
                 new Object[]{new String[]{"%path%", "person."},
                         rawLogMessage

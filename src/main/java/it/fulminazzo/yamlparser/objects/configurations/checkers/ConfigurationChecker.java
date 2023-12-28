@@ -1,8 +1,11 @@
 package it.fulminazzo.yamlparser.objects.configurations.checkers;
 
-import it.fulminazzo.fulmicollection.exceptions.GeneralCannotBeNullException;
+import it.fulminazzo.fulmicollection.objects.Printable;
+import it.fulminazzo.reflectionutils.utils.ReflUtil;
 import it.fulminazzo.yamlparser.interfaces.IConfiguration;
 import lombok.Getter;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -17,31 +20,41 @@ import java.util.*;
  *   in the first configuration.
  */
 @Getter
-public class ConfigurationChecker {
-    private final List<String> missingKeys;
-    private final List<ConfigurationInvalidType> invalidValues;
+public class ConfigurationChecker extends Printable {
+    private final @NotNull List<String> missingKeys;
+    private final @NotNull List<ConfigurationInvalidType> invalidValues;
 
-    public ConfigurationChecker(IConfiguration config1, IConfiguration config2, String... ignore) {
+    public ConfigurationChecker(@NotNull IConfiguration config1, @NotNull IConfiguration config2, String @Nullable ... ignore) {
         List<String> ignoredKeys = ignore == null ? new ArrayList<>() : Arrays.asList(ignore);
         this.missingKeys = new ArrayList<>();
         this.invalidValues = new ArrayList<>();
-        if (config1 == null) throw new GeneralCannotBeNullException("config1");
-        if (config2 == null) throw new GeneralCannotBeNullException("config2");
         Set<String> keys2 = config2.getKeys(true);
         config1.getKeys(true).stream()
                 .filter(k -> !keys2.contains(k))
                 .filter(k -> ignoredKeys.stream().noneMatch(s -> k.toLowerCase().startsWith(s.toLowerCase())))
                 .forEach(missingKeys::add);
-        Map<String, Object> values1 = config1.getValues(true);
-        Map<String, Object> values2 = config2.getValues(true);
-        for (String key : values1.keySet()) {
-            if (!values2.containsKey(key) || ignoredKeys.contains(key)) continue;
-            Object obj1 = values1.get(key);
+        Set<String> values1 = config1.getKeys(true);
+        Set<String> values2 = config2.getKeys(true);
+        for (String key : values1) {
+            if (!values2.contains(key) || ignoredKeys.contains(key)) continue;
+            Object obj1 = config1.getObject(key);
             if (obj1 == null) continue;
-            Object obj2 = values2.get(key);
+            Object obj2 = config2.getObject(key);
             if (obj2 == null) continue;
             if (!obj1.getClass().equals(obj2.getClass()))
                 invalidValues.add(new ConfigurationInvalidType(key, obj1.getClass(), obj2.getClass()));
+            else if (obj1 instanceof Collection && obj2 instanceof Collection) {
+                Collection<?> col1 = (Collection<?>) obj1;
+                Collection<?> col2 = (Collection<?>) obj2;
+                obj1 = col1.stream().filter(Objects::nonNull).findFirst().orElse(null);
+                obj2 = col2.stream().filter(Objects::nonNull).findFirst().orElse(null);
+                if (obj1 == null) continue;
+                if (obj2 == null) {
+                    if (ReflUtil.isPrimitive(obj1.getClass()))
+                        invalidValues.add(new ConfigurationInvalidType(key, obj1.getClass(), null));
+                } else if (!obj1.getClass().equals(obj2.getClass()))
+                    invalidValues.add(new ConfigurationInvalidType(key, obj1.getClass(), obj2.getClass()));
+            }
         }
     }
 
@@ -54,5 +67,14 @@ public class ConfigurationChecker {
      */
     public boolean isEmpty() {
         return missingKeys.isEmpty() && invalidValues.isEmpty();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof ConfigurationChecker) {
+            return missingKeys.equals(((ConfigurationChecker) o).getMissingKeys()) &&
+                    invalidValues.equals(((ConfigurationChecker) o).getInvalidValues());
+        }
+        return super.equals(o);
     }
 }

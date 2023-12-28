@@ -4,6 +4,8 @@ import it.fulminazzo.fulmicollection.utils.SerializeUtils;
 import it.fulminazzo.yamlparser.interfaces.IConfiguration;
 import it.fulminazzo.fulmicollection.interfaces.functions.BiFunctionException;
 import it.fulminazzo.fulmicollection.interfaces.functions.TriConsumer;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.Serializable;
 
@@ -22,8 +24,16 @@ public class SerializableYAMLParser extends YAMLParser<Serializable> {
      * @return the loader
      */
     @Override
-    protected BiFunctionException<IConfiguration, String, Serializable> getLoader() {
-        return (c, s) -> SerializeUtils.deserializeFromBase64(c.getString(s));
+    protected @NotNull BiFunctionException<@NotNull IConfiguration, @NotNull String, @Nullable Serializable> getLoader() {
+        return (c, s) -> {
+            if (c == null || s == null) return null;
+            String string = c.getString(s);
+            try {
+                return string == null ? null : SerializeUtils.deserializeFromBase64(string);
+            } catch (IllegalArgumentException e) {
+                return string;
+            }
+        };
     }
 
     /**
@@ -32,7 +42,12 @@ public class SerializableYAMLParser extends YAMLParser<Serializable> {
      * @return the dumper
      */
     @Override
-    protected TriConsumer<IConfiguration, String, Serializable> getDumper() {
-        return (c, s, ser) -> c.set(s, SerializeUtils.serializeToBase64(ser));
+    protected @NotNull TriConsumer<@NotNull IConfiguration, @NotNull String, @NotNull Serializable> getDumper() {
+        return (c, s, ser) -> {
+            if (c == null || s == null) return;
+            if (ser == null) return;
+            String serialized = SerializeUtils.serializeToBase64(ser);
+            if (serialized != null) c.set(s, serialized);
+        };
     }
 }

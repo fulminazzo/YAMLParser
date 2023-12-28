@@ -1,0 +1,11 @@
+string: "Hello world"
+numbers:
+  - "10"
+  - "11"
+  - "12"
+objects:
+  player:
+    names:
+      - Alex
+      - Fulminazzo
+      - Luke

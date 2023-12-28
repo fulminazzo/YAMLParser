@@ -11,9 +11,9 @@ import org.jetbrains.annotations.Nullable;
  */
 @Getter
 public abstract class YAMLException extends RuntimeException {
-    private final String path;
-    private final String name;
-    private final Object object;
+    private final @NotNull String path;
+    private final @NotNull String name;
+    private final @Nullable Object object;
 
     public YAMLException(@NotNull String path, @NotNull String name, @Nullable Object object,
                          @NotNull LogMessage message, @Nullable String... strings) {

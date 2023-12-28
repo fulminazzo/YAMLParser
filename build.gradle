@@ -13,8 +13,6 @@ repositories {
     maven {
         url 'https://jitpack.io'
     }
-
-    //TODO: Remove
     mavenLocal()
 }
 
@@ -25,7 +23,8 @@ dependencies {
 
     implementation 'org.yaml:snakeyaml:2.2'
 
-    //TODO: Convert to github
+    //TODO: Fix
+    /*implementation 'com.github.Fulminazzo:FulmiCollection:1.2'*/
     implementation 'it.fulminazzo:FulmiCollection:1.2'
 
     testImplementation platform('org.junit:junit-bom:5.9.1')

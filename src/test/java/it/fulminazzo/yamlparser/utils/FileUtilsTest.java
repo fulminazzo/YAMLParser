@@ -1,6 +1,6 @@
 package it.fulminazzo.yamlparser.utils;
 
-import it.fulminazzo.fulmicollection.utils.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -14,7 +14,7 @@ import static org.mockito.Mockito.when;
 
 class FileUtilsTest {
 
-    private static Object[] getWriteValues() {
+    private static Object @NotNull [] getWriteValues() {
         return new Object[]{
                 "Another test\nTo check for FileUtils",
                 "Another test\nTo check for FileUtils".getBytes(),
@@ -89,7 +89,7 @@ class FileUtilsTest {
             "test-string, test-string",
             "test\tstring, test-string",
     })
-    public void testFormatStringToYaml(String string, String expected) {
+    public void testFormatStringToYaml(@NotNull String string, String expected) {
         assertEquals(expected, FileUtils.formatStringToYaml(string));
     }
 }

@@ -11,10 +11,10 @@ import org.jetbrains.annotations.Nullable;
  */
 public class UnexpectedClassException extends YAMLException {
 
-    public UnexpectedClassException(@NotNull String path, @NotNull String name, @Nullable Object object, @NotNull String expected) {
+    public UnexpectedClassException(@NotNull String path, @NotNull String name, @Nullable Object object, @NotNull Class<?> expected) {
         super(path, name, object, LogMessage.UNEXPECTED_CLASS.getMessage(
-                "%expected%", expected,
-                "%received%", object == null ? "null" : object.getClass().getSimpleName()
+                "%expected%", expected.getCanonicalName(),
+                "%received%", object == null ? "null" : object.getClass().getCanonicalName()
         ));
     }
 }

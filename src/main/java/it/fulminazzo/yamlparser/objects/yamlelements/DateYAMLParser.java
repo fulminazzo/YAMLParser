@@ -3,6 +3,8 @@ package it.fulminazzo.yamlparser.objects.yamlelements;
 import it.fulminazzo.yamlparser.interfaces.IConfiguration;
 import it.fulminazzo.fulmicollection.interfaces.functions.BiFunctionException;
 import it.fulminazzo.fulmicollection.interfaces.functions.TriConsumer;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Date;
 
@@ -21,8 +23,12 @@ public class DateYAMLParser extends YAMLParser<Date> {
      * @return the loader
      */
     @Override
-    protected BiFunctionException<IConfiguration, String, Date> getLoader() {
-        return (c, s) -> new Date(c.getLong(s));
+    protected @NotNull BiFunctionException<@NotNull IConfiguration, @NotNull String, @Nullable Date> getLoader() {
+        return (c, s) -> {
+            if (c == null || s == null) return null;
+            Long l = c.getLong(s);
+            return l == null ? null : new Date(l);
+        };
     }
 
     /**
@@ -31,7 +37,11 @@ public class DateYAMLParser extends YAMLParser<Date> {
      * @return the dumper
      */
     @Override
-    protected TriConsumer<IConfiguration, String, Date> getDumper() {
-        return (c, s, d) -> c.set(s, d.getTime());
+    protected @NotNull TriConsumer<@NotNull IConfiguration, @NotNull String, @NotNull Date> getDumper() {
+        return (c, s, d) -> {
+            if (c == null || s == null) return;
+            if (d == null) return;
+            c.set(s, d.getTime());
+        };
     }
 }

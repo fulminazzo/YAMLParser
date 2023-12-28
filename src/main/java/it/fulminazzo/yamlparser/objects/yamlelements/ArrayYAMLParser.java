@@ -4,6 +4,8 @@ import it.fulminazzo.yamlparser.exceptions.yamlexceptions.EmptyArrayException;
 import it.fulminazzo.yamlparser.interfaces.IConfiguration;
 import it.fulminazzo.fulmicollection.interfaces.functions.BiFunctionException;
 import it.fulminazzo.fulmicollection.interfaces.functions.TriConsumer;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
 import java.util.Arrays;
@@ -17,7 +19,7 @@ import java.util.Objects;
  */
 @SuppressWarnings("unchecked")
 public class ArrayYAMLParser<T> extends YAMLParser<T[]> {
-    private final ListYAMLParser<T> listYamlParser;
+    private final @NotNull ListYAMLParser<T> listYamlParser;
 
     public ArrayYAMLParser() {
         super((Class<T[]>) ((Class<?>) Object[].class));
@@ -30,8 +32,9 @@ public class ArrayYAMLParser<T> extends YAMLParser<T[]> {
      * @return the loader
      */
     @Override
-    protected BiFunctionException<IConfiguration, String, T[]> getLoader() {
+    protected @NotNull BiFunctionException<@NotNull IConfiguration, @NotNull String, @Nullable T[]> getLoader() {
         return (c, s) -> {
+            if (c == null || s == null) return null;
             List<T> tmp = listYamlParser.load(c, s);
             T elem = tmp.stream().filter(Objects::nonNull).findAny().orElse(null);
             if (elem == null) throw new EmptyArrayException(String.join(".", c.parseSectionPath(s)), c.getNameFromPath(s), tmp);
@@ -47,7 +50,10 @@ public class ArrayYAMLParser<T> extends YAMLParser<T[]> {
      * @return the dumper
      */
     @Override
-    protected TriConsumer<IConfiguration, String, T[]> getDumper() {
-        return (c, s, o) -> listYamlParser.dump(c, s, Arrays.asList(o));
+    protected @NotNull TriConsumer<@NotNull IConfiguration, @NotNull String, @NotNull T[]> getDumper() {
+        return (c, s, o) -> {
+            assert o != null;
+            listYamlParser.dump(c, s, Arrays.asList(o));
+        };
     }
 }

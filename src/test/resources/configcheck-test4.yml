@@ -1,0 +1,13 @@
+string: "Hello world"
+num: "Hello friend"
+numbers:
+  - 10
+  - 11
+  - 12
+objects:
+  player:
+    uuid: 64b8cc63-034f-46e7-b6b0-d1a67f830f76
+    names:
+      - Alex
+      - Fulminazzo
+      - Luke

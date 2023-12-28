@@ -27,7 +27,7 @@ This interface presents a variety of **methods** and **functions** to work with 
 - ```getKeys(boolean deep)```: returns a **Set** containing every **key** in the YAML file. If ```deep``` is set to ```true```, it returns also the **keys** from every **subsection**;
 - ```getValues(boolean deep)```: returns a **Map** containing every **key-value** pair in the YAML file. If ```deep``` is set to ```true```, it returns also the **pairs** from every **subsection**;
 - ```contains(String path)```: returns **true** if the specified path **exists**;
-- ```createSection(String path, Map<Object, Object> map)```: **creates** a **section** at the specified path and **fills** it with the given **map**;
+- ```createSection(String path, Map<?, ?> map)```: **creates** a **section** at the specified path and **fills** it with the given **map**;
 - ```set(String path, O o)```: **sets** the object **O** to the given **path**. If the path contains ".", it **creates sections** accordingly. Uses [YAMLParsers](#yamlparser) for saving objects; 
 - ```getConfigurationSection(String path)```: returns the **configuration section** at the given path;
 - ```isConfigurationSection(String path)```: **checks** if the object at the given path is a **configuration section**;
@@ -274,9 +274,9 @@ In this case, we remove the previous object and stop if the new one is null.
 Otherwise, we create the corresponding section and save the desired into it:
 ```java
     @Override
-    protected TriConsumer<IConfiguration, String, Person> getDumper() {
+    protected TriConsumer<@NotNull IConfiguration, @NotNull String, @NotNull Person> getDumper() {
         return (configuration, path, person) -> {
-            configuration.set(path, null);
+            if (configuration == null || path == null) return;
             if (person == null) return;
             ConfigurationSection personSection = configuration.createSection(path);
             personSection.set("name", person.getName());
@@ -290,8 +290,9 @@ Otherwise, load the name and the age and create a new person with these values (
 **It is up to the user to handle any exception accordingly**, for example if age was null):
 ```java
     @Override
-    protected BiFunctionException<IConfiguration, String, Person> getLoader() {
+    protected BiFunctionException<@NotNull IConfiguration, @NotNull String, @Nullable Person> getLoader() {
         return (configuration, path) -> {
+            if (configuration == null || path == null) return null;
             ConfigurationSection personSection = configuration.getConfigurationSection(path);
             if (personSection == null) return null;
             String name = personSection.getString("name");

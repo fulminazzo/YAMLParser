@@ -17,7 +17,7 @@ public enum LogMessage {
     UNEXPECTED_CLASS("Expected class %expected% but got %received%."),
     CANNOT_DECIPHER_EMPTY_ARRAY("Cannot parse empty array. Type conversion will result in errors");
 
-    private final String message;
+    private final @NotNull String message;
 
     LogMessage(@NotNull String message) {
         this.message = message;
@@ -34,7 +34,7 @@ public enum LogMessage {
      * @return the final message
      */
     @NotNull
-    public String getMessage(@Nullable String... replacements) {
+    public String getMessage(@Nullable String @Nullable ... replacements) {
         if (replacements == null) return message;
         String tmp = message;
         if (replacements.length > 1)
@@ -43,7 +43,8 @@ public enum LogMessage {
                 if (from == null) continue;
                 if (!from.startsWith("%")) from = "%" + from;
                 if (!from.endsWith("%")) from = from + "%";
-                String to = replacements[i + 1] == null ? "null" : replacements[i + 1];
+                String to = replacements[i + 1];
+                if (to == null) to = "null";
                 tmp = tmp.replace(from, to);
             }
         return tmp;

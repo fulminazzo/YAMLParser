@@ -2,9 +2,12 @@ package it.fulminazzo.yamlparser.objects.configurations;
 
 import it.fulminazzo.yamlparser.interfaces.IConfiguration;
 import lombok.Getter;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Represents a Simple YAML Configuration.
@@ -12,14 +15,14 @@ import java.util.Map;
 class SimpleConfiguration implements IConfiguration {
     @Getter
     protected final String name;
-    protected final Map<String, Object> map;
+    protected final @NotNull Map<String, Object> map;
     protected boolean nonNull;
 
     public SimpleConfiguration() {
         this("", new LinkedHashMap<>());
     }
 
-    public SimpleConfiguration(String name, Map<Object, Object> map) {
+    public SimpleConfiguration(String name, Map<?, ?> map) {
         this.name = name;
         this.map = IConfiguration.generalToConfigMap(this, map);
         setNonNull(false);
@@ -31,7 +34,7 @@ class SimpleConfiguration implements IConfiguration {
      * @return the map
      */
     @Override
-    public Map<String, Object> toMap() {
+    public @NotNull Map<String, Object> toMap() {
         return map;
     }
 
@@ -64,7 +67,22 @@ class SimpleConfiguration implements IConfiguration {
      * @return the parent
      */
     @Override
-    public IConfiguration getParent() {
+    public @Nullable IConfiguration getParent() {
         return null;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof SimpleConfiguration) {
+            return Objects.equals(name, ((SimpleConfiguration) o).getName()) &&
+                    nonNull == ((SimpleConfiguration) o).checkNonNull() &&
+                    map.equals(((SimpleConfiguration) o).map);
+        }
+        return super.equals(o);
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%s {name: %s}", getClass().getSimpleName(), name == null ? "null" : getName());
     }
 }

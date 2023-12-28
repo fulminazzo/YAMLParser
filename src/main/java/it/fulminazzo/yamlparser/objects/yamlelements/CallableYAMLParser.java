@@ -8,6 +8,8 @@ import it.fulminazzo.yamlparser.annotations.PreventSaving;
 import it.fulminazzo.yamlparser.interfaces.IConfiguration;
 import it.fulminazzo.yamlparser.objects.configurations.ConfigurationSection;
 import it.fulminazzo.yamlparser.utils.FileUtils;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Field;
 
@@ -25,20 +27,23 @@ public class CallableYAMLParser<T> extends YAMLParser<T> {
      * @param tClass   the t class
      * @param function the function
      */
-    public CallableYAMLParser(Class<T> tClass, FunctionException<ConfigurationSection, T> function) {
+    public CallableYAMLParser(@NotNull Class<T> tClass, FunctionException<ConfigurationSection, T> function) {
         super(tClass);
         this.function = function;
     }
 
     @Override
-    protected BiFunctionException<IConfiguration, String, T> getLoader() {
+    protected @NotNull BiFunctionException<@NotNull IConfiguration, @NotNull String, @Nullable T> getLoader() {
         return (c, s) -> {
+            if (c == null || s == null) return null;
             ConfigurationSection section = c.getConfigurationSection(s);
             if (section == null) return null;
             T t = function.apply(section);
             if (t == null) return null;
             ReflObject<T> tReflObject = new ReflObject<>(t);
             for (Field field : tReflObject.getFields()) {
+                // Remove fields used by code coverage from Intellij IDEA.
+                if (field.getName().equals("__$hits$__")) continue;
                 if (field.isAnnotationPresent(PreventSaving.class)) continue;
                 Object object = section.get(FileUtils.formatStringToYaml(field.getName()), field.getType());
                 if (object == null) continue;
@@ -49,12 +54,15 @@ public class CallableYAMLParser<T> extends YAMLParser<T> {
     }
 
     @Override
-    protected TriConsumer<IConfiguration, String, T> getDumper() {
+    protected @NotNull TriConsumer<@NotNull IConfiguration, @NotNull String, @NotNull T> getDumper() {
         return (c, s, t) -> {
+            if (c == null || s == null) return;
             ConfigurationSection section = c.createSection(s);
             if (t == null) return;
             ReflObject<T> tReflObject = new ReflObject<>(t);
             tReflObject.getFields().forEach(field -> {
+                // Remove fields used by code coverage from Intellij IDEA.
+                if (field.getName().equals("__$hits$__")) return;
                 if (field.isAnnotationPresent(PreventSaving.class)) return;
                 section.set(FileUtils.formatStringToYaml(field.getName()), tReflObject.getFieldObject(field.getName()));
             });

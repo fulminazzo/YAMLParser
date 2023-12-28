@@ -1,8 +1,11 @@
 package it.fulminazzo.yamlparser.objects.configurations.checkers;
 
-import it.fulminazzo.fulmicollection.exceptions.ClassCannotBeNullException;
 import it.fulminazzo.yamlparser.enums.LogMessage;
 import lombok.Getter;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Objects;
 
 /**
  * A class to identify an invalid type
@@ -11,16 +14,23 @@ import lombok.Getter;
  */
 @Getter
 public class ConfigurationInvalidType {
-    private final String entry;
-    private final Class<?> expectedType;
-    private final Class<?> receivedType;
+    private final @NotNull String entry;
+    private final @NotNull Class<?> expectedType;
+    private final @Nullable Class<?> receivedType;
 
-    public ConfigurationInvalidType(String entry, Class<?> expectedType, Class<?> receivedType) {
+    public ConfigurationInvalidType(@NotNull String entry, @NotNull Class<?> expectedType, @Nullable Class<?> receivedType) {
         this.entry = entry;
-        if (expectedType == null) throw new ClassCannotBeNullException("Expected Type");
-        if (receivedType == null) throw new ClassCannotBeNullException("Received Type");
         this.expectedType = expectedType;
         this.receivedType = receivedType;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof ConfigurationInvalidType)
+            return entry.equalsIgnoreCase(((ConfigurationInvalidType) o).getEntry()) &&
+                    expectedType.equals(((ConfigurationInvalidType) o).getExpectedType()) &&
+                    Objects.equals(receivedType, ((ConfigurationInvalidType) o).getReceivedType());
+        return super.equals(o);
     }
 
     @Override
@@ -28,6 +38,6 @@ public class ConfigurationInvalidType {
         return String.format("%s {%s: %s}", getClass().getSimpleName(), entry,
                 LogMessage.UNEXPECTED_CLASS.getMessage(
                         "%expected%", expectedType.getSimpleName(),
-                        "%received%", receivedType.getSimpleName()));
+                        "%received%", receivedType == null ? "null" : receivedType.getSimpleName()));
     }
 }

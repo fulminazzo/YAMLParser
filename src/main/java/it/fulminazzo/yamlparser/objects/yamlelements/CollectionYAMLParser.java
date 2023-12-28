@@ -3,6 +3,8 @@ package it.fulminazzo.yamlparser.objects.yamlelements;
 import it.fulminazzo.yamlparser.interfaces.IConfiguration;
 import it.fulminazzo.fulmicollection.interfaces.functions.BiFunctionException;
 import it.fulminazzo.fulmicollection.interfaces.functions.TriConsumer;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -13,30 +15,31 @@ import java.util.*;
  * @param <C> the type of the collection
  */
 @SuppressWarnings("unchecked")
-public class CollectionYAMLParser<T, C extends Collection<T>> extends YAMLParser<C> {
-    protected final MapYAMLParser<Integer, T> mapYamlParser;
+class CollectionYAMLParser<T, C extends Collection<T>> extends YAMLParser<C> {
+    protected final @NotNull MapYAMLParser<Integer, T> mapYamlParser;
 
-    public CollectionYAMLParser() {
-        // Don't get fooled! Cast (Class<?>) is required at compilation time!
-        this((Class<C>) (Class<?>) Collection.class);
-    }
-
-    public CollectionYAMLParser(Class<C> aClass) {
+    public CollectionYAMLParser(@NotNull Class<C> aClass) {
         super(aClass);
         this.mapYamlParser = new MapYAMLParser<>(Integer::valueOf, Object::toString);
     }
 
     @Override
-    protected BiFunctionException<IConfiguration, String, C> getLoader() {
+    protected @NotNull BiFunctionException<@NotNull IConfiguration, @NotNull String, @Nullable C> getLoader() {
         return (c, s) -> {
-            if (c.isConfigurationSection(s)) return (C) mapYamlParser.load(c, s).values();
+            if (c == null || s == null) return null;
+            if (c.isConfigurationSection(s)) {
+                @Nullable Map<Integer, T> map = mapYamlParser.load(c, s);
+                return map == null ? null : (C) map.values();
+            }
             else return (C) c.getObject(s);
         };
     }
 
     @Override
-    protected TriConsumer<IConfiguration, String, C> getDumper() {
+    protected @NotNull TriConsumer<@NotNull IConfiguration, @NotNull String, @NotNull C> getDumper() {
         return (c, s, o) -> {
+            if (c == null || s == null) return;
+            if (o == null) return;
             List<T> list = new ArrayList<>(o);
             if (IConfiguration.isPrimitiveOrWrapper(list)) {
                 c.set(s, list);

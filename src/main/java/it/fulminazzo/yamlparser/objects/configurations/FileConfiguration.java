@@ -1,12 +1,15 @@
 package it.fulminazzo.yamlparser.objects.configurations;
 
+import it.fulminazzo.fulmicollection.exceptions.GeneralCannotBeNullException;
+import it.fulminazzo.reflectionutils.objects.ReflObject;
 import it.fulminazzo.reflectionutils.utils.ClassUtils;
 import it.fulminazzo.yamlparser.interfaces.IConfiguration;
 import it.fulminazzo.yamlparser.objects.yamlelements.ArrayYAMLParser;
 import it.fulminazzo.yamlparser.objects.yamlelements.SerializableYAMLParser;
 import it.fulminazzo.yamlparser.objects.yamlelements.YAMLParser;
 import it.fulminazzo.yamlparser.utils.FileUtils;
-import it.fulminazzo.reflectionutils.objects.ReflObject;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.representer.Representer;
@@ -18,17 +21,16 @@ import java.util.*;
 /**
  * Represents a YAML File configuration.
  */
-//TODO: fromString()
 public class FileConfiguration extends SimpleConfiguration {
     private final static LinkedList<YAMLParser<?>> parsers = new LinkedList<>();
-    private final File file;
+    private final @Nullable File file;
 
     /**
      * Instantiates a new File configuration.
      *
      * @param path the path
      */
-    public FileConfiguration(String path) {
+    public FileConfiguration(@NotNull String path) {
         this(new File(path));
     }
 
@@ -37,7 +39,7 @@ public class FileConfiguration extends SimpleConfiguration {
      *
      * @param file the file
      */
-    public FileConfiguration(File file) {
+    public FileConfiguration(@NotNull File file) {
         super("", null);
         this.file = file.getAbsoluteFile();
         Map<Object, Object> yaml;
@@ -65,7 +67,7 @@ public class FileConfiguration extends SimpleConfiguration {
      * @param file        the file
      * @param inputStream the input stream
      */
-    public FileConfiguration(File file, InputStream inputStream) {
+    public FileConfiguration(@Nullable File file, InputStream inputStream) {
         super("", null);
         this.file = file == null ? null : file.getAbsoluteFile();
         Map<Object, Object> yaml = newYaml().load(inputStream);
@@ -77,6 +79,7 @@ public class FileConfiguration extends SimpleConfiguration {
      * Saves the configuration to the file.
      */
     public void save() {
+        if (file == null) throw new GeneralCannotBeNullException("Save file");
         try {
             if (!file.exists()) FileUtils.createNewFile(file);
             FileWriter writer = new FileWriter(file);
@@ -92,7 +95,7 @@ public class FileConfiguration extends SimpleConfiguration {
      *
      * @return the YAML with parameters.
      */
-    public static Yaml newYaml() {
+    public static @NotNull Yaml newYaml() {
         DumperOptions dumperOptions = new DumperOptions();
         dumperOptions.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
         Representer representer = new Representer(dumperOptions);
@@ -123,7 +126,7 @@ public class FileConfiguration extends SimpleConfiguration {
      *
      * @param yamlParsers the YAML parsers
      */
-    public static void addParsers(YAMLParser<?>... yamlParsers) {
+    public static void addParsers(YAMLParser<?> @NotNull ... yamlParsers) {
         for (YAMLParser<?> yamlParser : yamlParsers)
             if (yamlParser != null && parsers.stream().noneMatch(p -> p.getOClass().equals(yamlParser.getOClass())))
                 parsers.addLast(yamlParser);
@@ -143,7 +146,7 @@ public class FileConfiguration extends SimpleConfiguration {
      *
      * @param yamlParsers the YAML parsers
      */
-    public static void removeParsers(YAMLParser<?>... yamlParsers) {
+    public static void removeParsers(YAMLParser<?> @NotNull ... yamlParsers) {
         for (YAMLParser<?> yamlParser : yamlParsers)
             if (yamlParser != null) parsers.removeIf(p -> p.getOClass().equals(yamlParser.getOClass()));
     }
@@ -155,14 +158,16 @@ public class FileConfiguration extends SimpleConfiguration {
      * @return the parsers from package
      */
     @SuppressWarnings("unchecked")
-    public static List<YAMLParser<?>> getParsersFromPackage(String packageName) {
-        Set<Class<?>> classes = ClassUtils.findClassesInPackage(packageName);
-        List<YAMLParser<?>> yamlParsers = new ArrayList<>();
+    public static @NotNull List<YAMLParser<?>> getParsersFromPackage(String packageName) {
+        Set<Class<?>> classes = ClassUtils.findClassesInPackage(packageName, FileConfiguration.class);
+        List<YAMLParser<?>> yamlParsers = new LinkedList<>();
         for (Class<?> clazz : classes)
             if (YAMLParser.class.isAssignableFrom(clazz))
                 try {
                     clazz.getConstructor();
-                    if (Modifier.isFinal(clazz.getModifiers()) || Modifier.isAbstract(clazz.getModifiers())) continue;
+                    if (Modifier.isFinal(clazz.getModifiers()) ||
+                            Modifier.isAbstract(clazz.getModifiers()) ||
+                            !Modifier.isPublic(clazz.getModifiers())) continue;
                     ReflObject<YAMLParser<?>> parserReflObject = new ReflObject<YAMLParser<?>>((Class<YAMLParser<?>>) clazz);
                     YAMLParser<?> parser = parserReflObject.getObject();
                     if (parser != null) yamlParsers.add(parser);
@@ -178,7 +183,7 @@ public class FileConfiguration extends SimpleConfiguration {
      * @return the parser
      */
     @SuppressWarnings("unchecked")
-    public static <O> YAMLParser<O> getParser(Class<O> oClass) {
+    public static <O> YAMLParser<O> getParser(@Nullable Class<O> oClass) {
         if (oClass == null) return null;
         if (oClass.isArray()) return (YAMLParser<O>) getParsers().stream()
                 .filter(p -> p instanceof ArrayYAMLParser<?>)
@@ -188,15 +193,32 @@ public class FileConfiguration extends SimpleConfiguration {
                 .findFirst().orElse(null);
     }
 
-    public static LinkedList<YAMLParser<?>> getParsers() {
-        parsers.removeIf(s -> s instanceof SerializableYAMLParser);
-        parsers.add(new SerializableYAMLParser());
+    /**
+     * From string file configuration.
+     *
+     * @param string the string
+     * @return the file configuration
+     */
+    public static @NotNull FileConfiguration fromString(@NotNull String string) {
+        return new FileConfiguration(new ByteArrayInputStream(string.getBytes()));
+    }
+
+    /**
+     * Gets parsers.
+     *
+     * @return the parsers
+     */
+    public static @NotNull LinkedList<YAMLParser<?>> getParsers() {
+        if (!parsers.isEmpty()) {
+            parsers.removeIf(s -> s instanceof SerializableYAMLParser);
+            parsers.add(new SerializableYAMLParser());
+        }
         return parsers;
     }
 
     @Override
     public String toString() {
-        return String.format("{file: %s, non-null: %s}",
+        return String.format("%s {file: %s, non-null: %s}", getClass().getSimpleName(),
                 file == null ? null : file.getAbsolutePath(), nonNull);
     }
 }

@@ -16,7 +16,7 @@ public class ConfigurationSection extends SimpleConfiguration {
         this(parent, name, null);
     }
 
-    public ConfigurationSection(IConfiguration parent, String name, Map<Object, Object> map) {
+    public ConfigurationSection(IConfiguration parent, String name, Map<?, ?> map) {
         super(name, map);
         this.parent = parent;
         setNonNull(false);
@@ -24,6 +24,6 @@ public class ConfigurationSection extends SimpleConfiguration {
 
     @Override
     public String toString() {
-        return String.format("{path: %s, name: %s, root: %s}", getCurrentPath(), getName(), getRoot());
+        return String.format("%s {path: %s, name: %s, root: %s}", getClass().getSimpleName(), getCurrentPath(), getName(), getRoot());
     }
 }

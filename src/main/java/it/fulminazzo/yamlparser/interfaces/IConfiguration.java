@@ -1,13 +1,16 @@
 package it.fulminazzo.yamlparser.interfaces;
 
 import it.fulminazzo.fulmicollection.utils.EnumUtils;
+import it.fulminazzo.reflectionutils.objects.ReflObject;
+import it.fulminazzo.reflectionutils.utils.ReflUtil;
 import it.fulminazzo.yamlparser.exceptions.yamlexceptions.CannotBeNullException;
 import it.fulminazzo.yamlparser.exceptions.yamlexceptions.UnexpectedClassException;
 import it.fulminazzo.yamlparser.objects.configurations.ConfigurationSection;
 import it.fulminazzo.yamlparser.objects.configurations.FileConfiguration;
 import it.fulminazzo.yamlparser.objects.configurations.checkers.ConfigurationChecker;
 import it.fulminazzo.yamlparser.objects.yamlelements.YAMLParser;
-import it.fulminazzo.reflectionutils.utils.ReflUtil;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -23,7 +26,7 @@ public interface IConfiguration {
      *
      * @return the root configuration
      */
-    default IConfiguration getRoot() {
+    default @NotNull IConfiguration getRoot() {
         IConfiguration section = this;
         while (section.getParent() != null) section = section.getParent();
         return section;
@@ -34,7 +37,7 @@ public interface IConfiguration {
      *
      * @return the keys
      */
-    default Set<String> getKeys() {
+    default @NotNull Set<String> getKeys() {
         return getKeys(false);
     }
 
@@ -44,7 +47,7 @@ public interface IConfiguration {
      * @param deep if true, gets keys from subsections.
      * @return the keys
      */
-    default Set<String> getKeys(boolean deep) {
+    default @NotNull Set<String> getKeys(boolean deep) {
         Map<String, Object> map = toMap();
         List<String> keys = new ArrayList<>(map.keySet());
         if (deep)
@@ -63,7 +66,7 @@ public interface IConfiguration {
      *
      * @return the values
      */
-    default Map<String, Object> getValues() {
+    default @NotNull Map<String, Object> getValues() {
         return getValues(false);
     }
 
@@ -73,7 +76,7 @@ public interface IConfiguration {
      * @param deep if true, gets values from subsections.
      * @return the values
      */
-    default Map<String, Object> getValues(boolean deep) {
+    default @NotNull Map<String, Object> getValues(boolean deep) {
         LinkedHashMap<String, Object> result = new LinkedHashMap<>();
         for (Map.Entry<String, Object> entry : toMap().entrySet()) {
             Object value = entry.getValue();
@@ -91,7 +94,7 @@ public interface IConfiguration {
      * @param path the path
      * @return true if an object is found.
      */
-    default boolean contains(String path) {
+    default boolean contains(@Nullable String path) {
         if (path == null) return false;
         List<String> sectionPath = parseSectionPath(path);
         if (sectionPath.isEmpty()) return toMap().containsKey(path);
@@ -108,7 +111,7 @@ public interface IConfiguration {
      * @param path the path
      * @return the configuration section
      */
-    default ConfigurationSection createSection(String path) {
+    default ConfigurationSection createSection(@NotNull String path) {
         return createSection(path, null);
     }
 
@@ -119,7 +122,7 @@ public interface IConfiguration {
      * @param map  the map
      * @return the configuration section
      */
-    default ConfigurationSection createSection(String path, Map<Object, Object> map) {
+    default ConfigurationSection createSection(@NotNull String path, @Nullable Map<?, ?> map) {
         List<String> sectionPath = parseSectionPath(path);
         if (sectionPath.isEmpty()) {
             ConfigurationSection section = new ConfigurationSection(this, path);
@@ -141,7 +144,7 @@ public interface IConfiguration {
      * @param path the path
      * @param o    the object
      */
-    default <O> void set(String path, O o) {
+    default <O> void set(@NotNull String path, @Nullable O o) {
         List<String> sectionPath = parseSectionPath(path);
         IConfiguration section = this;
         if (!sectionPath.isEmpty()) {
@@ -155,7 +158,7 @@ public interface IConfiguration {
         else {
             YAMLParser<O> parser = (YAMLParser<O>) FileConfiguration.getParser(o.getClass());
             if (!isPrimitiveOrWrapper(o) && parser != null)
-                try {parser.dump(this, path, o);}
+                try {parser.dump(section, path, o);}
                 catch (NullPointerException ignored) {}
             else section.toMap().put(path, o);
         }
@@ -169,7 +172,7 @@ public interface IConfiguration {
      * @param object the object
      * @return the final object
      */
-    default <T> T convertObjectToYAMLObject(String path, Object object) {
+    default <T> @Nullable T convertObjectToYAMLObject(@Nullable String path, @Nullable Object object) {
         return convertObjectToYAMLObject(path, object, FileConfiguration.getParsers());
     }
 
@@ -182,11 +185,23 @@ public interface IConfiguration {
      * @param clazz  the class of the object
      * @return the final object
      */
-    default <T> T convertObjectToYAMLObject(String path, Object object, Class<T> clazz) {
+    default <T> @Nullable T convertObjectToYAMLObject(@Nullable String path, @Nullable Object object, @Nullable Class<T> clazz) {
+        if (object == null) return null;
         if (clazz != null) {
-            if (isPrimitiveOrWrapper(clazz)) return (T) object;
+            if (isPrimitiveOrWrapper(clazz)) {
+                if (clazz.isAssignableFrom(object.getClass())) return (T) object;
+                if (clazz.isAssignableFrom(Character.class)) {
+                    String objectString = object.toString();
+                    if (objectString.isEmpty()) return (T) new Character((char) 0);
+                    return (T) new Character(objectString.charAt(0));
+                }
+                return new ReflObject<>(clazz.getCanonicalName(), false)
+                        .getMethodObject("valueOf", object.toString());
+            }
             if (Float.class.isAssignableFrom(clazz) && object instanceof Double)
                 object = Float.valueOf(String.valueOf(object));
+            if (clazz.getCanonicalName().equals("java.util.Arrays.ArrayList") && object instanceof List)
+                return (T) new ArrayList<>((Collection<?>) object);
         }
         return convertObjectToYAMLObject(path, object, Collections.singletonList(FileConfiguration.getParser(clazz)));
     }
@@ -200,15 +215,21 @@ public interface IConfiguration {
      * @param parsers the parsers
      * @return the final object
      */
-    default <T> T convertObjectToYAMLObject(String path, Object object, List<YAMLParser<?>> parsers) {
+    default <T> @Nullable T convertObjectToYAMLObject(@Nullable String path, @Nullable Object object,
+                                                      @NotNull List<YAMLParser<?>> parsers) {
+        if (path == null || object == null) return (T) object;
         for (YAMLParser<?> parser : parsers)
             if (parser != null)
                 try {
                     return (T) parser.load(this, path);
                 } catch (NullPointerException | IllegalArgumentException | UnexpectedClassException |
                          CannotBeNullException e) {
-                    if (parsers.size() == 1) throw new RuntimeException(e);
+                    if (parsers.size() == 1) {
+                        if (e instanceof IllegalArgumentException) throw e;
+                        throw new RuntimeException(e);
+                    }
                 } catch (Exception e) {
+                    if (e instanceof RuntimeException) throw (RuntimeException) e;
                     throw new RuntimeException(e);
                 }
         return (T) object;
@@ -221,7 +242,7 @@ public interface IConfiguration {
      * @param path the path
      * @return the configuration section
      */
-    default <C extends IConfiguration> C getConfigurationSection(String path) {
+    default <C extends IConfiguration> @Nullable C getConfigurationSection(@NotNull String path) {
         return (C) get(path, IConfiguration.class);
     }
 
@@ -231,7 +252,7 @@ public interface IConfiguration {
      * @param path the path
      * @return the configuration section
      */
-    default boolean isConfigurationSection(String path) {
+    default boolean isConfigurationSection(@NotNull String path) {
         return is(path, IConfiguration.class);
     }
 
@@ -243,7 +264,7 @@ public interface IConfiguration {
      * @param eClass the e class
      * @return the enum
      */
-    default <E extends Enum<E>> E getEnum(String path, Class<E> eClass) {
+    default <E extends Enum<E>> @Nullable E getEnum(@NotNull String path, @NotNull Class<E> eClass) {
         return getEnum(path, null, eClass);
     }
 
@@ -256,7 +277,7 @@ public interface IConfiguration {
      * @param eClass the e class
      * @return the enum
      */
-    default <E extends Enum<E>> E getEnum(String path, E def, Class<E> eClass) {
+    default <E extends Enum<E>> @Nullable E getEnum(@NotNull String path, E def, @NotNull Class<E> eClass) {
         String name = getString(path);
         if (name == null) return null;
         E e = EnumUtils.valueOf(eClass, name);
@@ -273,7 +294,7 @@ public interface IConfiguration {
      * @param eClass the e class
      * @return the enum
      */
-    default <E extends Enum<E>> boolean isEnum(String path, Class<E> eClass) {
+    default <E extends Enum<E>> boolean isEnum(@NotNull String path, @NotNull Class<E> eClass) {
         return is(path, eClass);
     }
 
@@ -283,7 +304,7 @@ public interface IConfiguration {
      * @param path the path
      * @return the uuid
      */
-    default UUID getUUID(String path) {
+    default @Nullable UUID getUUID(@NotNull String path) {
         return getUUID(path, null);
     }
 
@@ -294,7 +315,7 @@ public interface IConfiguration {
      * @param def  the def
      * @return the uuid
      */
-    default UUID getUUID(String path, UUID def) {
+    default @Nullable UUID getUUID(@NotNull String path, @Nullable UUID def) {
         return get(path, def, UUID.class);
     }
 
@@ -304,7 +325,7 @@ public interface IConfiguration {
      * @param path the path
      * @return the uuid
      */
-    default boolean isUUID(String path) {
+    default boolean isUUID(@NotNull String path) {
         return is(path, UUID.class);
     }
 
@@ -314,7 +335,7 @@ public interface IConfiguration {
      * @param path the path
      * @return the date
      */
-    default Date getDate(String path) {
+    default @Nullable Date getDate(@NotNull String path) {
         return getDate(path, null);
     }
 
@@ -325,7 +346,7 @@ public interface IConfiguration {
      * @param def  the def
      * @return the date
      */
-    default Date getDate(String path, Date def) {
+    default @Nullable Date getDate(@NotNull String path, @Nullable Date def) {
         return get(path, def, Date.class);
     }
 
@@ -335,7 +356,7 @@ public interface IConfiguration {
      * @param path the path
      * @return the date
      */
-    default boolean isDate(String path) {
+    default boolean isDate(@NotNull String path) {
         return is(path, Date.class);
     }
 
@@ -345,7 +366,7 @@ public interface IConfiguration {
      * @param path the path
      * @return the string
      */
-    default String getString(String path) {
+    default @Nullable String getString(@NotNull String path) {
         return getString(path, null);
     }
 
@@ -356,7 +377,7 @@ public interface IConfiguration {
      * @param def  the def
      * @return the string
      */
-    default String getString(String path, String def) {
+    default @Nullable String getString(@NotNull String path, @Nullable String def) {
         return get(path, def, String.class);
     }
 
@@ -366,7 +387,7 @@ public interface IConfiguration {
      * @param path the path
      * @return the string
      */
-    default boolean isString(String path) {
+    default boolean isString(@NotNull String path) {
         return is(path, String.class);
     }
 
@@ -376,7 +397,7 @@ public interface IConfiguration {
      * @param path the path
      * @return the integer
      */
-    default Integer getInteger(String path) {
+    default @Nullable Integer getInteger(@NotNull String path) {
         return getInteger(path, null);
     }
 
@@ -387,7 +408,7 @@ public interface IConfiguration {
      * @param def  the def
      * @return the integer
      */
-    default Integer getInteger(String path, Integer def) {
+    default @Nullable Integer getInteger(@NotNull String path, @Nullable Integer def) {
         return get(path, def, Integer.class);
     }
 
@@ -397,7 +418,7 @@ public interface IConfiguration {
      * @param path the path
      * @return the integer
      */
-    default boolean isInteger(String path) {
+    default boolean isInteger(@NotNull String path) {
         return is(path, Integer.class);
     }
 
@@ -407,7 +428,7 @@ public interface IConfiguration {
      * @param path the path
      * @return the double
      */
-    default Double getDouble(String path) {
+    default @Nullable Double getDouble(@NotNull String path) {
         return getDouble(path, null);
     }
 
@@ -418,7 +439,7 @@ public interface IConfiguration {
      * @param def  the def
      * @return the double
      */
-    default Double getDouble(String path, Double def) {
+    default @Nullable Double getDouble(@NotNull String path, @Nullable Double def) {
         return get(path, def, Double.class);
     }
 
@@ -428,7 +449,7 @@ public interface IConfiguration {
      * @param path the path
      * @return the double
      */
-    default boolean isDouble(String path) {
+    default boolean isDouble(@NotNull String path) {
         return is(path, Double.class);
     }
 
@@ -438,7 +459,7 @@ public interface IConfiguration {
      * @param path the path
      * @return the float
      */
-    default Float getFloat(String path) {
+    default @Nullable Float getFloat(@NotNull String path) {
         return getFloat(path, null);
     }
 
@@ -449,7 +470,7 @@ public interface IConfiguration {
      * @param def  the def
      * @return the float
      */
-    default Float getFloat(String path, Float def) {
+    default @Nullable Float getFloat(@NotNull String path, @Nullable Float def) {
         return get(path, def, Float.class);
     }
 
@@ -459,7 +480,7 @@ public interface IConfiguration {
      * @param path the path
      * @return the float
      */
-    default boolean isFloat(String path) {
+    default boolean isFloat(@NotNull String path) {
         return is(path, Float.class);
     }
 
@@ -469,7 +490,7 @@ public interface IConfiguration {
      * @param path the path
      * @return the long
      */
-    default Long getLong(String path) {
+    default @Nullable Long getLong(@NotNull String path) {
         return getLong(path, null);
     }
 
@@ -480,7 +501,7 @@ public interface IConfiguration {
      * @param def  the def
      * @return the long
      */
-    default Long getLong(String path, Long def) {
+    default @Nullable Long getLong(@NotNull String path, @Nullable Long def) {
         return get(path, def, Long.class);
     }
 
@@ -490,7 +511,7 @@ public interface IConfiguration {
      * @param path the path
      * @return the long
      */
-    default boolean isLong(String path) {
+    default boolean isLong(@NotNull String path) {
         return is(path, Long.class);
     }
 
@@ -500,7 +521,7 @@ public interface IConfiguration {
      * @param path the path
      * @return the short
      */
-    default Short getShort(String path) {
+    default @Nullable Short getShort(@NotNull String path) {
         return getShort(path, null);
     }
 
@@ -511,7 +532,7 @@ public interface IConfiguration {
      * @param def  the def
      * @return the short
      */
-    default Short getShort(String path, Short def) {
+    default @Nullable Short getShort(@NotNull String path, @Nullable Short def) {
         return get(path, def, Short.class);
     }
 
@@ -521,7 +542,7 @@ public interface IConfiguration {
      * @param path the path
      * @return the short
      */
-    default boolean isShort(String path) {
+    default boolean isShort(@NotNull String path) {
         return is(path, Short.class);
     }
 
@@ -531,7 +552,7 @@ public interface IConfiguration {
      * @param path the path
      * @return the boolean
      */
-    default Boolean getBoolean(String path) {
+    default @Nullable Boolean getBoolean(@NotNull String path) {
         return getBoolean(path, null);
     }
 
@@ -542,7 +563,7 @@ public interface IConfiguration {
      * @param def  the def
      * @return the boolean
      */
-    default Boolean getBoolean(String path, Boolean def) {
+    default @Nullable Boolean getBoolean(@NotNull String path, @Nullable Boolean def) {
         return get(path, def, Boolean.class);
     }
 
@@ -552,7 +573,7 @@ public interface IConfiguration {
      * @param path the path
      * @return the boolean
      */
-    default boolean isBoolean(String path) {
+    default boolean isBoolean(@NotNull String path) {
         return is(path, Boolean.class);
     }
 
@@ -562,7 +583,7 @@ public interface IConfiguration {
      * @param path the path
      * @return the character
      */
-    default Character getCharacter(String path) {
+    default @Nullable Character getCharacter(@NotNull String path) {
         return getCharacter(path, null);
     }
 
@@ -573,7 +594,7 @@ public interface IConfiguration {
      * @param def  the def
      * @return the character
      */
-    default Character getCharacter(String path, Character def) {
+    default @Nullable Character getCharacter(@NotNull String path, @Nullable Character def) {
         return get(path, def, Character.class);
     }
 
@@ -583,7 +604,7 @@ public interface IConfiguration {
      * @param path the path
      * @return the character
      */
-    default boolean isCharacter(String path) {
+    default boolean isCharacter(@NotNull String path) {
         return is(path, Character.class);
     }
 
@@ -593,7 +614,7 @@ public interface IConfiguration {
      * @param path the path
      * @return the byte
      */
-    default Byte getByte(String path) {
+    default @Nullable Byte getByte(@NotNull String path) {
         return getByte(path, null);
     }
 
@@ -604,7 +625,7 @@ public interface IConfiguration {
      * @param def  the def
      * @return the byte
      */
-    default Byte getByte(String path, Byte def) {
+    default @Nullable Byte getByte(@NotNull String path, @Nullable Byte def) {
         return get(path, def, Byte.class);
     }
 
@@ -614,7 +635,7 @@ public interface IConfiguration {
      * @param path the path
      * @return the byte
      */
-    default boolean isByte(String path) {
+    default boolean isByte(@NotNull String path) {
         return is(path, Byte.class);
     }
 
@@ -624,7 +645,7 @@ public interface IConfiguration {
      * @param path the path
      * @return the object
      */
-    default Object getObject(String path) {
+    default @Nullable Object getObject(@NotNull String path) {
         return getObject(path, null);
     }
 
@@ -635,7 +656,7 @@ public interface IConfiguration {
      * @param def  the def
      * @return the object
      */
-    default Object getObject(String path, Object def) {
+    default @Nullable Object getObject(@NotNull String path, @Nullable Object def) {
         return get(path, def, Object.class);
     }
 
@@ -647,8 +668,9 @@ public interface IConfiguration {
      * @param eClass the e class
      * @return the enum list
      */
-    default <E extends Enum<E>> List<E> getEnumList(String path, Class<? extends E> eClass) {
+    default <E extends Enum<E>> @Nullable List<E> getEnumList(@NotNull String path, @NotNull Class<? extends E> eClass) {
         List<String> list = getStringList(path);
+        if (list == null) return null;
         return list.stream()
                 .filter(e -> check(path, e, eClass))
                 .map(e -> EnumUtils.valueOf(eClass, e))
@@ -661,7 +683,7 @@ public interface IConfiguration {
      * @param path the path
      * @return the uuid list
      */
-    default List<UUID> getUUIDList(String path) {
+    default @Nullable List<UUID> getUUIDList(@NotNull String path) {
         return getList(path, UUID.class);
     }
 
@@ -671,7 +693,7 @@ public interface IConfiguration {
      * @param path the path
      * @return the date list
      */
-    default List<Date> getDateList(String path) {
+    default @Nullable List<Date> getDateList(@NotNull String path) {
         return getList(path, Date.class);
     }
 
@@ -681,7 +703,7 @@ public interface IConfiguration {
      * @param path the path
      * @return the string list
      */
-    default List<String> getStringList(String path) {
+    default @Nullable List<String> getStringList(@NotNull String path) {
         return getList(path, String.class);
     }
 
@@ -691,7 +713,7 @@ public interface IConfiguration {
      * @param path the path
      * @return the integer list
      */
-    default List<Integer> getIntegerList(String path) {
+    default @Nullable List<Integer> getIntegerList(@NotNull String path) {
         return getList(path, Integer.class);
     }
 
@@ -701,7 +723,7 @@ public interface IConfiguration {
      * @param path the path
      * @return the double list
      */
-    default List<Double> getDoubleList(String path) {
+    default @Nullable List<Double> getDoubleList(@NotNull String path) {
         return getList(path, Double.class);
     }
 
@@ -711,7 +733,7 @@ public interface IConfiguration {
      * @param path the path
      * @return the float list
      */
-    default List<Float> getFloatList(String path) {
+    default @Nullable List<Float> getFloatList(@NotNull String path) {
         return getList(path, Float.class);
     }
 
@@ -721,7 +743,7 @@ public interface IConfiguration {
      * @param path the path
      * @return the long list
      */
-    default List<Long> getLongList(String path) {
+    default @Nullable List<Long> getLongList(@NotNull String path) {
         return getList(path, Long.class);
     }
 
@@ -731,7 +753,7 @@ public interface IConfiguration {
      * @param path the path
      * @return the short list
      */
-    default List<Short> getShortList(String path) {
+    default @Nullable List<Short> getShortList(@NotNull String path) {
         return getList(path, Short.class);
     }
 
@@ -741,7 +763,7 @@ public interface IConfiguration {
      * @param path the path
      * @return the boolean list
      */
-    default List<Boolean> getBooleanList(String path) {
+    default @Nullable List<Boolean> getBooleanList(@NotNull String path) {
         return getList(path, Boolean.class);
     }
 
@@ -751,7 +773,7 @@ public interface IConfiguration {
      * @param path the path
      * @return the character list
      */
-    default List<Character> getCharacterList(String path) {
+    default @Nullable List<Character> getCharacterList(@NotNull String path) {
         return getList(path, Character.class);
     }
 
@@ -761,7 +783,7 @@ public interface IConfiguration {
      * @param path the path
      * @return the byte list
      */
-    default List<Byte> getByteList(String path) {
+    default @Nullable List<Byte> getByteList(@NotNull String path) {
         return getList(path, Byte.class);
     }
 
@@ -771,7 +793,7 @@ public interface IConfiguration {
      * @param path the path
      * @return the object list
      */
-    default List<?> getObjectList(String path) {
+    default @Nullable List<?> getObjectList(@NotNull String path) {
         return getObjectList(path, null);
     }
 
@@ -782,7 +804,7 @@ public interface IConfiguration {
      * @param def  the def
      * @return the object list
      */
-    default List<?> getObjectList(String path, List<?> def) {
+    default @Nullable List<?> getObjectList(@NotNull String path, @Nullable List<?> def) {
         return get(path, def, List.class);
     }
 
@@ -792,7 +814,7 @@ public interface IConfiguration {
      * @param path the path
      * @return the list
      */
-    default boolean isList(String path) {
+    default boolean isList(@NotNull String path) {
         return is(path, List.class);
     }
 
@@ -804,7 +826,7 @@ public interface IConfiguration {
      * @param clazz the clazz
      * @return the list
      */
-    default <T> List<T> getList(String path, Class<T> clazz) {
+    default <T> @Nullable List<T> getList(@NotNull String path, @NotNull Class<T> clazz) {
         List<?> list = getObjectList(path);
         if (list == null) return null;
         return list.stream()
@@ -824,7 +846,7 @@ public interface IConfiguration {
      * @param clazz the class
      * @return the result
      */
-    default <T> T get(String path, Class<T> clazz) {
+    default <T> @Nullable T get(@NotNull String path, @NotNull Class<T> clazz) {
         return get(path, null, clazz);
     }
 
@@ -839,8 +861,7 @@ public interface IConfiguration {
      * @param clazz the class
      * @return the result
      */
-    default <T> T get(String path, T def, Class<T> clazz) {
-        if (path == null) throw new CannotBeNullException(getCurrentPath(), "null", "Path");
+    default <T> @Nullable T get(@NotNull String path, @Nullable T def, @NotNull Class<T> clazz) {
         List<String> parsedPath = parseSectionPath(path);
         if (parsedPath.isEmpty()) {
             Object object = toMap().get(path);
@@ -864,7 +885,7 @@ public interface IConfiguration {
      * @param clazz the class
      * @return true if is an instance of class
      */
-    default <T> boolean is(String path, Class<T> clazz) {
+    default <T> boolean is(@NotNull String path, @NotNull Class<T> clazz) {
         try {
             T t = get(path, clazz);
             return t != null;
@@ -884,13 +905,15 @@ public interface IConfiguration {
      * @param clazz  the class
      * @return true if no exceptions are thrown
      */
-    default <T> boolean check(String name, Object object, Class<T> clazz) {
-        if (clazz == null) throw new CannotBeNullException(getCurrentPath(), "null", "Class");
+    default <T> boolean check(@NotNull String name, @Nullable Object object, @NotNull Class<T> clazz) {
+        // java.util.ArrayList != java.util.Arrays.ArrayList
+        if (clazz.getCanonicalName().equals(Arrays.class.getCanonicalName() + ".ArrayList"))
+            clazz = (Class<T>) ArrayList.class;
         if (object == null && checkNonNull()) throw new CannotBeNullException(getCurrentPath(), name, name);
         if (object == null) return true;
         if (clazz.isAssignableFrom(object.getClass())) return true;
         if (ReflUtil.getPrimitiveClass(clazz).isAssignableFrom(ReflUtil.getPrimitiveClass(object.getClass()))) return true;
-        throw new UnexpectedClassException(getCurrentPath(), name, object, clazz.getSimpleName());
+        throw new UnexpectedClassException(getCurrentPath(), name, object, clazz);
     }
 
     /**
@@ -900,7 +923,7 @@ public interface IConfiguration {
      * @param ignore        the keys to ignore during checking
      * @return the result of the comparison as configuration checker
      */
-    default ConfigurationChecker compare(IConfiguration configuration, String... ignore) {
+    default @NotNull ConfigurationChecker compare(@NotNull IConfiguration configuration, @Nullable String... ignore) {
         return new ConfigurationChecker(this, configuration, ignore);
     }
 
@@ -910,7 +933,7 @@ public interface IConfiguration {
      * @param path the path
      * @return the string
      */
-    default String removeFirstPath(String path) {
+    default @NotNull String removeFirstPath(@NotNull String path) {
         String[] tmp = path.split("\\.");
         return String.join(".", Arrays.copyOfRange(tmp, 1, tmp.length));
     }
@@ -921,7 +944,7 @@ public interface IConfiguration {
      * @param path the path
      * @return the name
      */
-    default String getNameFromPath(String path) {
+    default String getNameFromPath(@NotNull String path) {
         String[] tmp = path.split("\\.");
         return tmp[tmp.length - 1];
     }
@@ -933,7 +956,7 @@ public interface IConfiguration {
      * @param path the path
      * @return the list
      */
-    default List<String> parseSectionPath(String path) {
+    default @NotNull List<String> parseSectionPath(@NotNull String path) {
         List<String> parsedPath = parsePath(path);
         if (!parsedPath.isEmpty()) parsedPath.remove(parsedPath.size() - 1);
         return parsedPath;
@@ -945,8 +968,7 @@ public interface IConfiguration {
      * @param path the path
      * @return the list
      */
-    default List<String> parsePath(String path) {
-        if (path == null) throw new CannotBeNullException(getCurrentPath(), "null", "Path");
+    default @NotNull List<String> parsePath(@NotNull String path) {
         List<String> list = new ArrayList<>();
         for (String p : path.split("\\."))
             if (p.trim().isEmpty()) return list;
@@ -990,7 +1012,7 @@ public interface IConfiguration {
      * @param object the object
      * @return true if is null, primitive, wrapper or a string
      */
-    static boolean isPrimitiveOrWrapper(Object object) {
+    static boolean isPrimitiveOrWrapper(@Nullable Object object) {
         if (object instanceof List) {
             List<?> list = (List<?>) object;
             if (list.isEmpty()) return true;
@@ -1005,7 +1027,7 @@ public interface IConfiguration {
      * @param clazz the class
      * @return true if is null, primitive, wrapper or a string
      */
-    static boolean isPrimitiveOrWrapper(Class<?> clazz) {
+    static boolean isPrimitiveOrWrapper(@Nullable Class<?> clazz) {
         if (clazz == null) return false;
         return ReflUtil.isPrimitiveOrWrapper(clazz) || clazz.equals(String.class);
     }
@@ -1024,7 +1046,8 @@ public interface IConfiguration {
      * @param start the head start for the print
      * @return the result string
      */
-    default String toString(String start) {
+    default @NotNull String toString(@Nullable String start) {
+        if (start == null) start = "";
         String result = "";
         Map<String, Object> map = toMap();
         for (Map.Entry<String, Object> entry : map.entrySet()) {
@@ -1046,12 +1069,12 @@ public interface IConfiguration {
      * @param map    the general map
      * @return the configuration map
      */
-    static Map<String, Object> generalToConfigMap(IConfiguration parent, Map<Object, Object> map) {
+    static @NotNull Map<String, Object> generalToConfigMap(@NotNull IConfiguration parent, @Nullable Map<?, ?> map) {
         LinkedHashMap<String, Object> treeMap = new LinkedHashMap<>();
         if (map == null) return treeMap;
         map.forEach((k, v) -> {
-            if (v instanceof Map) v = new ConfigurationSection(parent, k.toString(), (Map<Object, Object>) v);
-            treeMap.put(k.toString(), v);
+            if (v instanceof Map) treeMap.put(k.toString(), new ConfigurationSection(parent, k.toString(), (Map<?, ?>) v));
+            else treeMap.put(k.toString(), v);
         });
         return treeMap;
     }
@@ -1062,11 +1085,11 @@ public interface IConfiguration {
      * @param config the configuration
      * @return the general map
      */
-    static Map<String, Object> configToGeneralMap(IConfiguration config) {
+    static @Nullable Map<String, Object> configToGeneralMap(@Nullable IConfiguration config) {
         if (config == null) return null;
         LinkedHashMap<String, Object> treeMap = new LinkedHashMap<>();
         Map<String, Object> map = config.toMap();
-        map.forEach((k, v) -> {
+        map.forEach((String k, @Nullable Object v) -> {
             if (v instanceof IConfiguration) v = configToGeneralMap((IConfiguration) v);
             treeMap.put(k, v);
         });
@@ -1092,7 +1115,7 @@ public interface IConfiguration {
      *
      * @return the parent
      */
-    IConfiguration getParent();
+    @Nullable IConfiguration getParent();
 
     /**
      * Converts the current configuration to a map.
