@@ -26,3 +26,10 @@ jobs:
           REPOSITORY_NAME: ${{ github.event.repository.name }}
           # Message specified in the commit
           COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+      - name: Publish Release
+        uses: gradle/gradle-build-action@749f47bda3e44aa060e82d7b3ef7e40d953bd629
+        with:
+          arguments: publish
+        env:
+          REPO_USERNAME: ${{ secrets.FULMINAZZO_REPO_USERNAME }}
+          REPO_PASSWORD: ${{ secrets.FULMINAZZO_REPO_TOKEN }}
