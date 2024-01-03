@@ -1,7 +1,8 @@
 package it.fulminazzo.yamlparser.objects.configurations.checkers;
 
 import it.fulminazzo.fulmicollection.objects.Printable;
-import it.fulminazzo.reflectionutils.utils.ReflUtil;
+
+import it.fulminazzo.fulmicollection.utils.ReflectionUtils;
 import it.fulminazzo.yamlparser.interfaces.IConfiguration;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
@@ -50,7 +51,7 @@ public class ConfigurationChecker extends Printable {
                 obj2 = col2.stream().filter(Objects::nonNull).findFirst().orElse(null);
                 if (obj1 == null) continue;
                 if (obj2 == null) {
-                    if (ReflUtil.isPrimitive(obj1.getClass()))
+                    if (ReflectionUtils.isPrimitive(obj1.getClass()))
                         invalidValues.add(new ConfigurationInvalidType(key, obj1.getClass(), null));
                 } else if (!obj1.getClass().equals(obj2.getClass()))
                     invalidValues.add(new ConfigurationInvalidType(key, obj1.getClass(), obj2.getClass()));

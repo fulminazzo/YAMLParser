@@ -1,6 +1,6 @@
 package it.fulminazzo.yamlparser.utils;
 
-import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -13,8 +13,14 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class FileUtilsTest {
+    private File file;
+    
+    @BeforeEach
+    void setUp() {
+        file = new File("build/resources/test/fileutils-test1.txt");
+    }
 
-    private static Object @NotNull [] getWriteValues() {
+    private static Object[] getWriteValues() {
         return new Object[]{
                 "Another test\nTo check for FileUtils",
                 "Another test\nTo check for FileUtils".getBytes(),
@@ -23,27 +29,25 @@ class FileUtilsTest {
     }
 
     @Test
-    public void testReadString() throws IOException {
-        File file = new File("build/resources/test/test1.txt");
+    void testReadString() throws IOException {
         assertEquals("Simple test\nTo check for FileUtils", FileUtils.readFileToString(file));
     }
 
     @Test
-    public void testReadBytes() throws IOException {
-        File file = new File("build/resources/test/test1.txt");
+    void testReadBytes() throws IOException {
         assertArrayEquals("Simple test\nTo check for FileUtils".getBytes(), FileUtils.readFile(file));
     }
 
     @Test
-    public void testReadBytesNonExistent() throws IOException {
-        File file = new File("build/resources/test/test10.txt");
+    void testReadBytesNonExistent() throws IOException {
+        File file = new File(this.file.getParent(), "fileutils-test10.txt");
         assertNull(FileUtils.readFile(file));
     }
 
     @ParameterizedTest
     @MethodSource(value = "getWriteValues")
-    public void testWrite(Object toWrite) throws IOException {
-        File file = new File("build/resources/test/test2.txt");
+    void testWrite(Object toWrite) throws IOException {
+        File file = new File(this.file.getParent(), "fileutils-test2.txt");
         if (toWrite instanceof String) FileUtils.writeToFile(file, (String) toWrite);
         else if (toWrite instanceof byte[]) FileUtils.writeToFile(file, (byte[]) toWrite);
         else if (toWrite instanceof InputStream) FileUtils.writeToFile(file, (InputStream) toWrite);
@@ -52,7 +56,7 @@ class FileUtilsTest {
     }
 
     @Test
-    public void testReadHugeFileSize() throws IOException {
+    void testReadHugeFileSize() throws IOException {
         FileInputStream inputStream = mock(FileInputStream.class);
         when(inputStream.available()).thenReturn((int) Runtime.getRuntime().freeMemory());
         assertThrowsExactly(OutOfMemoryError.class, () -> FileUtils.readFile(inputStream));
@@ -60,22 +64,58 @@ class FileUtilsTest {
     }
 
     @Test
-    public void testCompareEquals() {
-        File file = new File("build/resources/test/test1.txt");
+    void testCreateFolder() throws IOException {
+        File file = new File(this.file.getParent(), "test/folder");
+        FileUtils.createFolder(file);
+        assertTrue(file.isDirectory());
+    }
+
+    @Test
+    void testDeleteFolder() throws IOException {
+        File file = new File(this.file.getParent(), "test");
+        if (!file.isDirectory()) FileUtils.createFolder(file);
+        FileUtils.deleteFolder(file);
+        assertFalse(file.isDirectory());
+    }
+
+    @Test
+    void testCopy() throws IOException {
+        File file2 = new File(file.getParent(), "fileutils-test3.txt");
+        FileUtils.copyFile(file, file2);
+        assertEquals(FileUtils.readFileToString(file), FileUtils.readFileToString(file2));
+    }
+
+    @Test
+    void testRename() throws IOException {
+        File file = new File(this.file.getParent(), "fileutils-test3.txt");
+        File file2 = new File(this.file.getParent(), "fileutils-test4.txt");
+        if (file2.exists()) FileUtils.deleteFile(file2);
+        FileUtils.renameFile(file, file2);
+        assertFalse(file.isFile());
+        assertTrue(file2.isFile());
+    }
+
+    @Test
+    void testDelete() throws IOException {
+        File file = new File(this.file.getParent(), "fileutils-test5.txt");
+        if (file.exists()) FileUtils.deleteFile(file);
+        assertFalse(file.isFile());
+    }
+
+    @Test
+    void testCompareEquals() {
         assertTrue(FileUtils.compareTwoFiles(file, file));
     }
 
     @Test
-    public void testCompareNotEquals() {
-        File file = new File("build/resources/test/test1.txt");
-        File file2 = new File("build/resources/test/test2.txt");
+    void testCompareNotEquals() {
+        File file2 = new File(this.file.getParent(), "fileutils-test2.txt");
         assertFalse(FileUtils.compareTwoFiles(file, file2));
     }
 
     @Test
-    public void testCompareNotExisting() {
-        File file = new File("build/resources/test/test1.txt");
-        File file2 = new File("build/resources/test/test20.txt");
+    void testCompareNotExisting() {
+        File file2 = new File(this.file.getParent(), "fileutils-test20.txt");
         assertFalse(FileUtils.compareTwoFiles(file, file2));
     }
 
@@ -89,7 +129,7 @@ class FileUtilsTest {
             "test-string, test-string",
             "test\tstring, test-string",
     })
-    public void testFormatStringToYaml(@NotNull String string, String expected) {
+    void testFormatStringToYaml(String string, String expected) {
         assertEquals(expected, FileUtils.formatStringToYaml(string));
     }
 }

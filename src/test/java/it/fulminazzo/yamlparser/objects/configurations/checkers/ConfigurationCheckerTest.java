@@ -12,12 +12,13 @@ import java.io.File;
 import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 class ConfigurationCheckerTest {
     private FileConfiguration configuration1;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         configuration1 = loadConfiguration("configcheck-test2.yml");
     }
 
@@ -49,7 +50,7 @@ class ConfigurationCheckerTest {
 
     @ParameterizedTest
     @MethodSource("testValues")
-    public void testConfigurationParameters(String fileName, boolean empty, int missingKeys, int invalidValues) {
+    void testConfigurationParameters(String fileName, boolean empty, int missingKeys, int invalidValues) {
         ConfigurationChecker configurationChecker = checkConfiguration(fileName);
         assertEquals(empty, configurationChecker.isEmpty());
         assertEquals(missingKeys, configurationChecker.getMissingKeys().size());
@@ -57,16 +58,16 @@ class ConfigurationCheckerTest {
     }
 
     @Test
-    public void testConfigurationIgnore() {
+    void testConfigurationIgnore() {
         ConfigurationChecker configurationChecker = checkConfiguration("configcheck-test5.yml",
                 "num", "objects.player.uuid");
-        assertEquals(false, configurationChecker.isEmpty());
+        assertFalse(configurationChecker.isEmpty());
         assertEquals(0, configurationChecker.getMissingKeys().size());
         assertEquals(1, configurationChecker.getInvalidValues().size());
     }
 
     @Test
-    public void testInvalidKey() {
+    void testInvalidKey() {
         ConfigurationChecker configurationChecker = checkConfiguration("configcheck-test4.yml");
         assertEquals("ConfigurationInvalidType {" + "num" + ": " + LogMessage.UNEXPECTED_CLASS.getMessage(
                 "%expected%", "Integer", "%received%", "String") + "}",
@@ -74,7 +75,7 @@ class ConfigurationCheckerTest {
     }
 
     @Test
-    public void testConfigurationCompare() {
+    void testConfigurationCompare() {
         String fileName = "configcheck-test5.yml";
         ConfigurationChecker check1 = checkConfiguration(fileName);
         ConfigurationChecker check2 = configuration1.compare(loadConfiguration(fileName));

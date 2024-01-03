@@ -1,15 +1,16 @@
 package it.fulminazzo.yamlparser.objects.configurations;
 
 import it.fulminazzo.fulmicollection.exceptions.GeneralCannotBeNullException;
-import it.fulminazzo.reflectionutils.objects.ReflObject;
-import it.fulminazzo.reflectionutils.utils.ClassUtils;
+import it.fulminazzo.fulmicollection.utils.ClassUtils;
 import it.fulminazzo.yamlparser.interfaces.IConfiguration;
 import it.fulminazzo.yamlparser.objects.yamlelements.ArrayYAMLParser;
+import it.fulminazzo.yamlparser.objects.yamlelements.EnumYAMLParser;
 import it.fulminazzo.yamlparser.objects.yamlelements.SerializableYAMLParser;
 import it.fulminazzo.yamlparser.objects.yamlelements.YAMLParser;
 import it.fulminazzo.yamlparser.utils.FileUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.joor.Reflect;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.representer.Representer;
@@ -86,7 +87,9 @@ public class FileConfiguration extends SimpleConfiguration {
             newYaml().dump(IConfiguration.configToGeneralMap(this), writer);
             writer.close();
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            if (e instanceof RuntimeException && e.getCause() instanceof RuntimeException)
+                throw (RuntimeException) e.getCause();
+            else throw new RuntimeException(e);
         }
     }
 
@@ -168,8 +171,7 @@ public class FileConfiguration extends SimpleConfiguration {
                     if (Modifier.isFinal(clazz.getModifiers()) ||
                             Modifier.isAbstract(clazz.getModifiers()) ||
                             !Modifier.isPublic(clazz.getModifiers())) continue;
-                    ReflObject<YAMLParser<?>> parserReflObject = new ReflObject<YAMLParser<?>>((Class<YAMLParser<?>>) clazz);
-                    YAMLParser<?> parser = parserReflObject.getObject();
+                    YAMLParser<?> parser = Reflect.onClass(clazz).create().get();
                     if (parser != null) yamlParsers.add(parser);
                 } catch (NoSuchMethodException ignored) {}
         return yamlParsers;
@@ -183,11 +185,10 @@ public class FileConfiguration extends SimpleConfiguration {
      * @return the parser
      */
     @SuppressWarnings("unchecked")
-    public static <O> YAMLParser<O> getParser(@Nullable Class<O> oClass) {
+    public static <O, E extends Enum<E>> YAMLParser<O> getParser(@Nullable Class<O> oClass) {
         if (oClass == null) return null;
-        if (oClass.isArray()) return (YAMLParser<O>) getParsers().stream()
-                .filter(p -> p instanceof ArrayYAMLParser<?>)
-                .findFirst().orElse(new ArrayYAMLParser<>());
+        if (oClass.isEnum()) return (YAMLParser<O>) new EnumYAMLParser<E>(oClass);
+        if (oClass.isArray()) return (YAMLParser<O>) new ArrayYAMLParser<O>();
         return (YAMLParser<O>) getParsers().stream()
                 .filter(p -> p.getOClass().isAssignableFrom(oClass))
                 .findFirst().orElse(null);

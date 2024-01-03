@@ -19,6 +19,11 @@ import org.jetbrains.annotations.Nullable;
 public abstract class YAMLParser<O> {
     private final @NotNull Class<O> oClass;
 
+    /**
+     * Instantiates a new YAML parser.
+     *
+     * @param oClass the o class
+     */
     public YAMLParser(@NotNull Class<O> oClass) {
         this.oClass = oClass;
     }

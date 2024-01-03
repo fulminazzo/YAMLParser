@@ -3,13 +3,14 @@ package it.fulminazzo.yamlparser.objects.yamlelements;
 import it.fulminazzo.fulmicollection.interfaces.functions.BiFunctionException;
 import it.fulminazzo.fulmicollection.interfaces.functions.FunctionException;
 import it.fulminazzo.fulmicollection.interfaces.functions.TriConsumer;
-import it.fulminazzo.reflectionutils.objects.ReflObject;
+import it.fulminazzo.fulmicollection.utils.ReflectionUtils;
 import it.fulminazzo.yamlparser.annotations.PreventSaving;
 import it.fulminazzo.yamlparser.interfaces.IConfiguration;
 import it.fulminazzo.yamlparser.objects.configurations.ConfigurationSection;
 import it.fulminazzo.yamlparser.utils.FileUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.joor.Reflect;
 
 import java.lang.reflect.Field;
 
@@ -22,7 +23,7 @@ public class CallableYAMLParser<T> extends YAMLParser<T> {
     private final FunctionException<ConfigurationSection, T> function;
 
     /**
-     * Instantiates a new Callable yaml parser.
+     * Instantiates a new Callable YAML parser.
      *
      * @param tClass   the t class
      * @param function the function
@@ -40,14 +41,12 @@ public class CallableYAMLParser<T> extends YAMLParser<T> {
             if (section == null) return null;
             T t = function.apply(section);
             if (t == null) return null;
-            ReflObject<T> tReflObject = new ReflObject<>(t);
-            for (Field field : tReflObject.getFields()) {
-                // Remove fields used by code coverage from Intellij IDEA.
-                if (field.getName().equals("__$hits$__")) continue;
+            Reflect tReflect = Reflect.on(t);
+            for (Field field : ReflectionUtils.getFields(t)) {
                 if (field.isAnnotationPresent(PreventSaving.class)) continue;
                 Object object = section.get(FileUtils.formatStringToYaml(field.getName()), field.getType());
                 if (object == null) continue;
-                tReflObject.setField(field.getName(), object);
+                tReflect.set(field.getName(), object);
             }
             return t;
         };
@@ -59,12 +58,11 @@ public class CallableYAMLParser<T> extends YAMLParser<T> {
             if (c == null || s == null) return;
             ConfigurationSection section = c.createSection(s);
             if (t == null) return;
-            ReflObject<T> tReflObject = new ReflObject<>(t);
-            tReflObject.getFields().forEach(field -> {
-                // Remove fields used by code coverage from Intellij IDEA.
-                if (field.getName().equals("__$hits$__")) return;
+            Reflect tReflect = Reflect.on(t);
+            ReflectionUtils.getFields(t).forEach(field -> {
                 if (field.isAnnotationPresent(PreventSaving.class)) return;
-                section.set(FileUtils.formatStringToYaml(field.getName()), tReflObject.getFieldObject(field.getName()));
+                String fieldName = field.getName();
+                section.set(FileUtils.formatStringToYaml(fieldName), tReflect.get(fieldName));
             });
         };
     }

@@ -13,6 +13,9 @@ import java.util.UUID;
  */
 public class UUIDYAMLParser extends YAMLParser<UUID> {
 
+    /**
+     * Instantiates a new UUID YAML parser.
+     */
     public UUIDYAMLParser() {
         super(UUID.class);
     }

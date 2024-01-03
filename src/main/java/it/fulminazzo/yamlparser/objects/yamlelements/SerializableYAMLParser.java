@@ -14,6 +14,9 @@ import java.io.Serializable;
  */
 public class SerializableYAMLParser extends YAMLParser<Serializable> {
 
+    /**
+     * Instantiates a new Serializable YAML parser.
+     */
     public SerializableYAMLParser() {
         super(Serializable.class);
     }
@@ -28,11 +31,7 @@ public class SerializableYAMLParser extends YAMLParser<Serializable> {
         return (c, s) -> {
             if (c == null || s == null) return null;
             String string = c.getString(s);
-            try {
-                return string == null ? null : SerializeUtils.deserializeFromBase64(string);
-            } catch (IllegalArgumentException e) {
-                return string;
-            }
+            return string == null ? null : SerializeUtils.deserializeFromBase64(string);
         };
     }
 

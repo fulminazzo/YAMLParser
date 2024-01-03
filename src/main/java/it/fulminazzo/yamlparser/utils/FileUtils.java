@@ -128,7 +128,7 @@ public class FileUtils {
         File parent = folder.getParentFile();
         if (parent != null && !parent.exists()) createFolder(parent);
         if (!folder.mkdir())
-            throw new IOException(LogMessage.FOLDER_CREATE_ERROR.getMessage("%folder%", folder.getName()));
+            throw new IOException(LogMessage.FOLDER_CREATE_ERROR.getMessage("%folder%", folder.getAbsolutePath()));
     }
 
     /**
@@ -154,7 +154,7 @@ public class FileUtils {
      */
     public static void renameFile(@NotNull File fileFrom, @NotNull File fileTo) throws IOException {
         if (!fileFrom.renameTo(fileTo))
-            throw new IOException(LogMessage.FILE_RENAME_ERROR.getMessage("%file%", fileFrom.getName()));
+            throw new IOException(LogMessage.FILE_RENAME_ERROR.getMessage("%file%", fileFrom.getAbsolutePath()));
     }
 
     /**
@@ -165,7 +165,7 @@ public class FileUtils {
      */
     public static void deleteFile(@NotNull File file) throws IOException {
         if (!file.delete())
-            throw new IOException(LogMessage.FILE_DELETE_ERROR.getMessage("%file%", file.getName()));
+            throw new IOException(LogMessage.FILE_DELETE_ERROR.getMessage("%file%", file.getAbsolutePath()));
     }
 
     /**
@@ -192,7 +192,7 @@ public class FileUtils {
                 if (file.isDirectory()) recursiveDelete(file);
                 else deleteFile(file);
         if (!folder.delete())
-            throw new IOException(LogMessage.FOLDER_DELETE_ERROR.getMessage("%folder%", folder.getName()));
+            throw new IOException(LogMessage.FOLDER_DELETE_ERROR.getMessage("%folder%", folder.getAbsolutePath()));
     }
 
     /**

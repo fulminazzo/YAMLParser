@@ -11,32 +11,32 @@ class YAMLParserTest {
     private YAMLParser<?> yamlParser;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         yamlParser = new UUIDYAMLParser();
     }
 
     @Test
-    public void testYAMLParserEqualsSameYAMLParser() {
+    void testYAMLParserEqualsSameYAMLParser() {
         assertEquals(yamlParser, new UUIDYAMLParser());
     }
 
     @Test
-    public void testYAMLParserNotEqualsDifferentYAMLParser() {
+    void testYAMLParserNotEqualsDifferentYAMLParser() {
         assertNotEquals(yamlParser, new ArrayYAMLParser<>());
     }
 
     @Test
-    public void testYAMLParserNotEqualsYAMLInnerClass() {
+    void testYAMLParserNotEqualsYAMLInnerClass() {
         assertNotEquals(yamlParser, UUID.class);
     }
 
     @Test
-    public void testYAMLParserNotEqualsYAMLClass() {
+    void testYAMLParserNotEqualsYAMLClass() {
         assertNotEquals(yamlParser, UUIDYAMLParser.class);
     }
 
     @Test
-    public void testYAMLParserNotEqualsGenericObject() {
+    void testYAMLParserNotEqualsGenericObject() {
         assertNotEquals(yamlParser, "Generic string");
     }
 }

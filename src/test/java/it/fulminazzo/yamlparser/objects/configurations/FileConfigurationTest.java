@@ -1,11 +1,11 @@
 package it.fulminazzo.yamlparser.objects.configurations;
 
 import it.fulminazzo.yamlparser.enums.LogMessage;
+import it.fulminazzo.yamlparser.exceptions.yamlexceptions.CannotBeNullException;
 import it.fulminazzo.yamlparser.exceptions.yamlexceptions.EmptyArrayException;
 import it.fulminazzo.yamlparser.interfaces.IConfiguration;
 import it.fulminazzo.yamlparser.objects.yamlelements.*;
 import it.fulminazzo.yamlparser.utils.FileUtils;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -23,13 +23,13 @@ public class FileConfigurationTest {
     private FileConfiguration configuration;
 
     @BeforeAll
-    public static void setAllUp() throws IOException {
+    static void setAllUp() throws IOException {
         File file = new File(filePath);
         if (file.exists()) FileUtils.deleteFile(file);
     }
 
     @BeforeEach
-    public void setUp() throws IOException {
+    void setUp() throws IOException {
         reloadConfiguration();
     }
 
@@ -40,7 +40,7 @@ public class FileConfigurationTest {
         configuration = new FileConfiguration(filePath);
     }
 
-    private static Object @NotNull [] getTestValues() {
+    private static Object[] getTestValues() {
         return new Object[]{
                 "Hello",
                 'w',
@@ -60,7 +60,7 @@ public class FileConfigurationTest {
     @ParameterizedTest
     @MethodSource("getTestValues")
     @Order(5)
-    public void testWriteAndReadEveryType(@NotNull Object expected) throws IOException {
+    void testWriteAndReadEveryType(Object expected) throws IOException {
         String path = expected.getClass().getSimpleName().toLowerCase();
         if (expected.getClass().isArray()) path += "-array";
         // Add possibility for an inner object.
@@ -79,8 +79,37 @@ public class FileConfigurationTest {
 
     @ParameterizedTest
     @MethodSource("getTestValues")
+    @Order(6)
+    void testIsEveryType(Object object) {
+        String path = object.getClass().getSimpleName().toLowerCase();
+        if (object.getClass().isArray()) path += "-array";
+        if (!configuration.contains(path)) path = "objects." + path;
+        if (!configuration.contains(path)) throw new IllegalArgumentException("Could not find path " + path);
+        boolean readObject;
+        try {
+            Method isObject = IConfiguration.class.getMethod("is" + object.getClass().getSimpleName(), String.class);
+            readObject = (boolean) isObject.invoke(configuration, path);
+        } catch (Exception e) {
+            readObject = configuration.is(path, object.getClass());
+        }
+        assertTrue(readObject);
+    }
+
+    @Test
+    void testGettingNullWithCheckNonNullEnabled() {
+        configuration.setNonNull(true);
+        assertThrowsExactly(CannotBeNullException.class, () -> configuration.getStringList("non-existing-string"));
+    }
+
+    @Test
+    void testGettingNullWithCheckNonNullDisabled() {
+        assertNull(configuration.getString("non-existing-string"));
+    }
+
+    @ParameterizedTest
+    @MethodSource("getTestValues")
     @Order(5)
-    public void testWriteAndReadEveryListType(@NotNull Object expected) throws IOException {
+    void testWriteAndReadEveryListType(Object expected) throws IOException {
         String path = expected.getClass().getSimpleName().toLowerCase();
         if (expected.getClass().isArray()) path += "-array";
         path = "lists." + path;
@@ -96,26 +125,17 @@ public class FileConfigurationTest {
         assertEquals(new ArrayList<>(Collections.singletonList(expected)), readObject);
     }
 
-    @ParameterizedTest
-    @MethodSource("getTestValues")
+    @Test
     @Order(6)
-    public void testIsEveryType(@NotNull Object object) {
-        String path = object.getClass().getSimpleName().toLowerCase();
-        if (object.getClass().isArray()) path += "-array";
-        if (!configuration.contains(path)) path = "objects." + path;
-        boolean readObject;
-        try {
-            Method isObject = IConfiguration.class.getMethod("is" + object.getClass().getSimpleName(), String.class);
-            readObject = (boolean) isObject.invoke(configuration, path);
-        } catch (Exception e) {
-            readObject = configuration.is(path, object.getClass());
-        }
-        assertTrue(readObject);
+    void testIsList() {
+        ConfigurationSection listSection = configuration.getConfigurationSection("lists");
+        if (listSection == null) throw new IllegalArgumentException("Section \"lists\" cannot be null!");
+        for (String key : listSection.getKeys()) assertTrue(listSection.isList(key));
     }
 
     @Test
     @Order(6)
-    public void testWriteAndReadEnum() throws IOException {
+    void testWriteAndReadEnum() throws IOException {
         LogMessage logMessage = LogMessage.UNEXPECTED_CLASS;
         configuration.set("enum", logMessage);
         reloadConfiguration();
@@ -124,7 +144,7 @@ public class FileConfigurationTest {
 
     @Test
     @Order(6)
-    public void testWriteAndReadEnumList() throws IOException {
+    void testWriteAndReadEnumList() throws IOException {
         List<LogMessage> list = new ArrayList<>(Collections.singletonList(LogMessage.YAML_ERROR));
         configuration.set("lists.enum", list);
         reloadConfiguration();
@@ -132,8 +152,17 @@ public class FileConfigurationTest {
     }
 
     @Test
+    @Order(7)
+    void testIsEnum() {
+        String path = "enum";
+        if (!configuration.contains(path)) path = "objects." + path;
+        if (!configuration.contains(path)) throw new IllegalArgumentException("Could not find path " + path);
+        assertTrue(configuration.isEnum(path, LogMessage.class));
+    }
+
+    @Test
     @Order(5)
-    public void testWriteAndReadArray() throws IOException {
+    void testWriteAndReadArray() throws IOException {
         String[] array = new String[]{"Welcome", "Friend"};
         configuration.set("string-array", array);
         reloadConfiguration();
@@ -142,7 +171,7 @@ public class FileConfigurationTest {
 
     @Test
     @Order(5)
-    public void testWriteAndReadEmptyArray() throws IOException {
+    void testWriteAndReadEmptyArray() throws IOException {
         String[] array = new String[0];
         configuration.set("string-array", array);
         reloadConfiguration();
@@ -152,7 +181,7 @@ public class FileConfigurationTest {
 
     @Test
     @Order(5)
-    public void testWriteAndReadCallableParser() throws IOException {
+    void testWriteAndReadCallableParser() throws IOException {
         User user = new User(UUID.randomUUID(), "Alex", new Date());
         CallableYAMLParser<User> userYAMLParser = new CallableYAMLParser<>(User.class,
                 c -> new User(null, null, null));
@@ -164,7 +193,7 @@ public class FileConfigurationTest {
 
     @Test
     @Order(10)
-    public void testNewConfigurationFromNotExistingFile() {
+    void testNewConfigurationFromNotExistingFile() {
         assertThrowsExactly(FileNotFoundException.class, () -> {
             try {
                 new FileConfiguration("not/existing/file.yml");
@@ -176,7 +205,7 @@ public class FileConfigurationTest {
 
     @Test
     @Order(10)
-    public void testNewConfigurationFromInputStream() throws IOException {
+    void testNewConfigurationFromInputStream() throws IOException {
         reloadConfiguration();
         File file = new File(filePath);
         InputStream inputStream = Files.newInputStream(file.toPath());
@@ -185,7 +214,7 @@ public class FileConfigurationTest {
 
     @Test
     @Order(10)
-    public void testNewConfigurationFromString() throws IOException {
+    void testNewConfigurationFromString() throws IOException {
         reloadConfiguration();
         String contents = FileUtils.readFileToString(new File(filePath));
         assertNotNull(contents);
@@ -194,7 +223,7 @@ public class FileConfigurationTest {
 
     @Test
     @Order(1)
-    public void testAddParsersFromPackage() {
+    void testAddParsersFromPackage() {
         FileConfiguration.addParsers();
         assertEquals(new LinkedList<>(Arrays.asList(new ArrayYAMLParser<>(),
                         new DateYAMLParser(),
@@ -208,7 +237,7 @@ public class FileConfigurationTest {
 
     @Test
     @Order(1)
-    public void testRemoveParsersFromPackage() {
+    void testRemoveParsersFromPackage() {
         FileConfiguration.removeParsers(UUIDYAMLParser.class.getPackage().getName());
         assertEquals(new LinkedList<>(), FileConfiguration.getParsers());
     }

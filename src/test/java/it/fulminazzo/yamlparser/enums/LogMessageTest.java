@@ -1,6 +1,5 @@
 package it.fulminazzo.yamlparser.enums;
 
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -12,12 +11,12 @@ class LogMessageTest {
     private static LogMessage logMessage;
 
     @BeforeAll
-    public static void setup() {
+    static void setAllUp() {
         rawLogMessage = "Error found at \"%path%%name%\" for object \"%object%\": %message%";
         logMessage = LogMessage.YAML_ERROR;
     }
 
-    private static Object @NotNull [] getTestValues() {
+    private static Object[] getTestValues() {
         return new Object[]{
                 new Object[]{new String[]{"%path%", "person."},
                         rawLogMessage
@@ -46,7 +45,7 @@ class LogMessageTest {
 
     @ParameterizedTest
     @MethodSource("getTestValues")
-    public void testVariousParameters(String[] parameters, String expected) {
+    void testVariousParameters(String[] parameters, String expected) {
         assertEquals(expected, logMessage.getMessage(parameters));
     }
 

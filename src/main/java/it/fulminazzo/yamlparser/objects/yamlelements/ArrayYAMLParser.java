@@ -21,6 +21,9 @@ import java.util.Objects;
 public class ArrayYAMLParser<T> extends YAMLParser<T[]> {
     private final @NotNull ListYAMLParser<T> listYamlParser;
 
+    /**
+     * Instantiates a new Array YAML parser.
+     */
     public ArrayYAMLParser() {
         super((Class<T[]>) ((Class<?>) Object[].class));
         this.listYamlParser = new ListYAMLParser<>();
@@ -36,6 +39,7 @@ public class ArrayYAMLParser<T> extends YAMLParser<T[]> {
         return (c, s) -> {
             if (c == null || s == null) return null;
             List<T> tmp = listYamlParser.load(c, s);
+            if (tmp == null) return null;
             T elem = tmp.stream().filter(Objects::nonNull).findAny().orElse(null);
             if (elem == null) throw new EmptyArrayException(String.join(".", c.parseSectionPath(s)), c.getNameFromPath(s), tmp);
             T[] t = (T[]) Array.newInstance(elem.getClass(), tmp.size());

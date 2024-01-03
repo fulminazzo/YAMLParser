@@ -3,8 +3,34 @@
 This project aims to provide a simple way of **accessing data** from **YAML files**.
 It uses the following **libraries**: 
 - [SnakeYAML](https://bitbucket.org/snakeyaml/snakeyaml/src/master/)
-- [BearCommands common](https://github.com/Fulminazzo/BearCommands)
-- [ReflectionUtils](https://github.com/Fulminazzo/TODO)
+- [FulmiCollection](https://github.com/Fulminazzo/FulmiCollection)
+- [jOOR](https://github.com/jOOQ/jOOR)
+
+To start using the project, import it with Maven or Gradle:
+- **Maven**:
+```xml
+<repository>
+    <id>fulminazzo-repo</id>
+    <url>https://repo.fulminazzo.it/releases</url>
+</repository>
+```
+```xml
+<dependency>
+    <groupId>it.fulminazzo</groupId>
+    <artifactId>YAMLParser</artifactId>
+    <version>1.3</version>
+</dependency>
+```
+- **Gradle**:
+```groovy
+repositories {
+    maven { url = "https://repo.fulminazzo.it/releases" }
+}
+
+dependencies {
+  implementation 'it.fulminazzo.YAMLParser:1.3'
+}
+```
 
 | **Table of Contents**                                         |
 |---------------------------------------------------------------|

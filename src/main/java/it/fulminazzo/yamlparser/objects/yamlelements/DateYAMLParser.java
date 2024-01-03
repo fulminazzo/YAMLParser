@@ -13,6 +13,9 @@ import java.util.Date;
  */
 public class DateYAMLParser extends YAMLParser<Date> {
 
+    /**
+     * Instantiates a new Date YAML parser.
+     */
     public DateYAMLParser() {
         super(Date.class);
     }

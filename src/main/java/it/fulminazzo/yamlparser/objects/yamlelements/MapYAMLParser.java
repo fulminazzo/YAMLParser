@@ -1,7 +1,8 @@
 package it.fulminazzo.yamlparser.objects.yamlelements;
 
+import it.fulminazzo.fulmicollection.utils.ReflectionUtils;
 import it.fulminazzo.fulmicollection.utils.SerializeUtils;
-import it.fulminazzo.reflectionutils.utils.ReflUtil;
+
 import it.fulminazzo.yamlparser.exceptions.yamlexceptions.CannotBeNullException;
 import it.fulminazzo.yamlparser.interfaces.IConfiguration;
 import it.fulminazzo.fulmicollection.interfaces.functions.BiFunctionException;
@@ -27,6 +28,12 @@ final class MapYAMLParser<K, V> extends YAMLParser<Map<K, V>> {
     private final Function<String, K> keyLoader;
     private final Function<K, String> keyParser;
 
+    /**
+     * Instantiates a new Map YAML parser.
+     *
+     * @param keyLoader the key loader
+     * @param keyParser the key parser
+     */
     public MapYAMLParser(Function<String, K> keyLoader, Function<K, String> keyParser) {
         super((Class<Map<K, V>>) ((Class<?>) Map.class));
         this.keyLoader = keyLoader;
@@ -46,7 +53,7 @@ final class MapYAMLParser<K, V> extends YAMLParser<Map<K, V>> {
             if (section == null) return null;
             Class<V> oClass = null;
             String valueClass = SerializeUtils.deserializeFromBase64(section.getString("value-class"));
-            if (valueClass != null) oClass = ReflUtil.getClass(valueClass);
+            if (valueClass != null) oClass = ReflectionUtils.getClass(valueClass);
             if (oClass == null) throw new CannotBeNullException(c.getCurrentPath(), "." + s, "value-class");
             HashMap<K, V> map = new HashMap<>();
             for (String k : section.getKeys()) {

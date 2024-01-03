@@ -9,8 +9,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -21,7 +19,7 @@ class IConfigurationTest {
     private ConfigurationSection innerSection;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         configuration = new FileConfiguration("build/resources/test/configcheck-test2.yml");
         mainSection = configuration.getConfigurationSection("objects");
         if (mainSection != null) innerSection = mainSection.getConfigurationSection("player");
@@ -36,7 +34,7 @@ class IConfigurationTest {
 
     @Test
     @Order(1)
-    public void testGetConfigurationSection() {
+    void testGetConfigurationSection() {
         mainSection = configuration.getConfigurationSection("objects");
         Map<Object, Object> contents = new LinkedHashMap<>();
         Map<String, Object> innerContents = createInnerContents();
@@ -47,7 +45,7 @@ class IConfigurationTest {
 
     @Test
     @Order(2)
-    public void testCreateInnerConfiguration() {
+    void testCreateInnerConfiguration() {
         ConfigurationSection innerSection = mainSection.createSection("another-player");
         ConfigurationSection section = new ConfigurationSection(mainSection, "another-player");
         assertEquals(section, innerSection);
@@ -55,7 +53,16 @@ class IConfigurationTest {
 
     @Test
     @Order(2)
-    public void testCreateInnerConfigurationFull() {
+    void testCreateInnerConfigurationMultiDot() {
+        ConfigurationSection innerSection = mainSection.createSection("another-player.name");
+        ConfigurationSection midSection = new ConfigurationSection(mainSection, "another-player");
+        ConfigurationSection section = new ConfigurationSection(midSection, "name");
+        assertEquals(section, innerSection);
+    }
+
+    @Test
+    @Order(2)
+    void testCreateInnerConfigurationFull() {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("content1", "Hello");
         map.put("content2", 10);
@@ -67,33 +74,33 @@ class IConfigurationTest {
 
     @Test
     @Order(3)
-    public void testGetRoot() {
+    void testGetRoot() {
         assertEquals(configuration, innerSection.getRoot());
     }
 
     @Test
     @Order(3)
-    public void testGetKeys() {
+    void testGetKeys() {
         assertEquals(new HashSet<>(Collections.singletonList("player")), mainSection.getKeys());
     }
 
     @Test
     @Order(3)
-    public void testGetKeysDeep() {
+    void testGetKeysDeep() {
         assertEquals(new HashSet<>(Arrays.asList("player", "player.uuid", "player.names")),
                 mainSection.getKeys(true));
     }
 
     @Test
     @Order(3)
-    public void testGetValues() {
+    void testGetValues() {
         Map<String, Object> map = new HashMap<>();
         assertEquals(map, mainSection.getValues());
     }
 
     @Test
     @Order(3)
-    public void testGetValuesDeep() {
+    void testGetValuesDeep() {
         Map<String, Object> innerContents = createInnerContents();
         assertEquals(new LinkedHashMap<String, Object>(){{put("player", innerContents);}},
                 mainSection.getValues(true));
@@ -101,19 +108,19 @@ class IConfigurationTest {
 
     @Test
     @Order(3)
-    public void testContainsValidValue() {
+    void testContainsValidValue() {
         assertTrue(mainSection.contains("player"));
     }
 
     @Test
     @Order(3)
-    public void testContainsInvalidValue() {
+    void testContainsInvalidValue() {
         assertFalse(mainSection.contains("player2"));
     }
 
     @Test
     @Order(3)
-    public void testPrint() {
+    void testPrint() {
         final PrintStream standardError = System.err;
         ByteArrayOutputStream tempStandardOutput = new ByteArrayOutputStream();
         System.setOut(new PrintStream(tempStandardOutput));

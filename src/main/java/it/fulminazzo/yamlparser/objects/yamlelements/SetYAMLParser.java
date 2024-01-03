@@ -17,6 +17,9 @@ import java.util.Set;
 @SuppressWarnings("unchecked")
 public class SetYAMLParser<T> extends CollectionYAMLParser<T, Set<T>> {
 
+    /**
+     * Instantiates a new Set YAML parser.
+     */
     public SetYAMLParser() {
         super((Class<Set<T>>) (Class<?>) Set.class);
     }

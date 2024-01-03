@@ -1,8 +1,7 @@
 package it.fulminazzo.yamlparser.interfaces;
 
 import it.fulminazzo.fulmicollection.utils.EnumUtils;
-import it.fulminazzo.reflectionutils.objects.ReflObject;
-import it.fulminazzo.reflectionutils.utils.ReflUtil;
+import it.fulminazzo.fulmicollection.utils.ReflectionUtils;
 import it.fulminazzo.yamlparser.exceptions.yamlexceptions.CannotBeNullException;
 import it.fulminazzo.yamlparser.exceptions.yamlexceptions.UnexpectedClassException;
 import it.fulminazzo.yamlparser.objects.configurations.ConfigurationSection;
@@ -11,6 +10,7 @@ import it.fulminazzo.yamlparser.objects.configurations.checkers.ConfigurationChe
 import it.fulminazzo.yamlparser.objects.yamlelements.YAMLParser;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.joor.Reflect;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -154,7 +154,6 @@ public interface IConfiguration {
             path = getNameFromPath(path);
         }
         if (o == null) section.toMap().remove(path);
-        else if (o instanceof Enum<?>) section.toMap().put(path, ((Enum<?>) o).name());
         else {
             YAMLParser<O> parser = (YAMLParser<O>) FileConfiguration.getParser(o.getClass());
             if (!isPrimitiveOrWrapper(o) && parser != null)
@@ -162,18 +161,6 @@ public interface IConfiguration {
                 catch (NullPointerException ignored) {}
             else section.toMap().put(path, o);
         }
-    }
-
-    /**
-     * Converts the given object using its associated YAML parser (if found).
-     *
-     * @param <T>    the type of the object
-     * @param path   the path
-     * @param object the object
-     * @return the final object
-     */
-    default <T> @Nullable T convertObjectToYAMLObject(@Nullable String path, @Nullable Object object) {
-        return convertObjectToYAMLObject(path, object, FileConfiguration.getParsers());
     }
 
     /**
@@ -195,11 +182,8 @@ public interface IConfiguration {
                     if (objectString.isEmpty()) return (T) new Character((char) 0);
                     return (T) new Character(objectString.charAt(0));
                 }
-                return new ReflObject<>(clazz.getCanonicalName(), false)
-                        .getMethodObject("valueOf", object.toString());
+                return Reflect.onClass(clazz).call("valueOf", object.toString()).get();
             }
-            if (Float.class.isAssignableFrom(clazz) && object instanceof Double)
-                object = Float.valueOf(String.valueOf(object));
             if (clazz.getCanonicalName().equals("java.util.Arrays.ArrayList") && object instanceof List)
                 return (T) new ArrayList<>((Collection<?>) object);
         }
@@ -669,12 +653,7 @@ public interface IConfiguration {
      * @return the enum list
      */
     default <E extends Enum<E>> @Nullable List<E> getEnumList(@NotNull String path, @NotNull Class<? extends E> eClass) {
-        List<String> list = getStringList(path);
-        if (list == null) return null;
-        return list.stream()
-                .filter(e -> check(path, e, eClass))
-                .map(e -> EnumUtils.valueOf(eClass, e))
-                .collect(Collectors.toList());
+        return (List<E>) getList(path, eClass);
     }
 
     /**
@@ -912,7 +891,7 @@ public interface IConfiguration {
         if (object == null && checkNonNull()) throw new CannotBeNullException(getCurrentPath(), name, name);
         if (object == null) return true;
         if (clazz.isAssignableFrom(object.getClass())) return true;
-        if (ReflUtil.getPrimitiveClass(clazz).isAssignableFrom(ReflUtil.getPrimitiveClass(object.getClass()))) return true;
+        if (ReflectionUtils.getPrimitiveClass(clazz).isAssignableFrom(ReflectionUtils.getPrimitiveClass(object.getClass()))) return true;
         throw new UnexpectedClassException(getCurrentPath(), name, object, clazz);
     }
 
@@ -1029,7 +1008,7 @@ public interface IConfiguration {
      */
     static boolean isPrimitiveOrWrapper(@Nullable Class<?> clazz) {
         if (clazz == null) return false;
-        return ReflUtil.isPrimitiveOrWrapper(clazz) || clazz.equals(String.class);
+        return ReflectionUtils.isPrimitiveOrWrapper(clazz) || clazz.equals(String.class);
     }
 
     /**

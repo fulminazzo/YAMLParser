@@ -12,6 +12,7 @@ import org.jetbrains.annotations.Nullable;
  * thrown.
  */
 public class EmptyArrayException extends YAMLException {
+
     public EmptyArrayException(@NotNull String path, @NotNull String name, @Nullable Object object) {
         super(path, name, object, LogMessage.CANNOT_DECIPHER_EMPTY_ARRAY);
     }

@@ -18,6 +18,11 @@ import java.util.*;
 class CollectionYAMLParser<T, C extends Collection<T>> extends YAMLParser<C> {
     protected final @NotNull MapYAMLParser<Integer, T> mapYamlParser;
 
+    /**
+     * Instantiates a new Collection YAML parser.
+     *
+     * @param aClass the class
+     */
     public CollectionYAMLParser(@NotNull Class<C> aClass) {
         super(aClass);
         this.mapYamlParser = new MapYAMLParser<>(Integer::valueOf, Object::toString);

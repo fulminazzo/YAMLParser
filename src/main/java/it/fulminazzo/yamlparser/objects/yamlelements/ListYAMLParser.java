@@ -17,6 +17,9 @@ import java.util.List;
 @SuppressWarnings("unchecked")
 public class ListYAMLParser<T> extends CollectionYAMLParser<T, List<T>> {
 
+    /**
+     * Instantiates a new List YAML parser.
+     */
     public ListYAMLParser() {
         super((Class<List<T>>) (Class<?>) List.class);
     }
