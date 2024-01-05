@@ -159,7 +159,6 @@ public class FileConfiguration extends SimpleConfiguration {
      * @param packageName the package name
      * @return the parsers from package
      */
-    @SuppressWarnings("unchecked")
     public static @NotNull List<YAMLParser<?>> getParsersFromPackage(String packageName) {
         Set<Class<?>> classes = ClassUtils.findClassesInPackage(packageName, FileConfiguration.class);
         List<YAMLParser<?>> yamlParsers = new LinkedList<>();
