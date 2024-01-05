@@ -32,9 +32,7 @@ public class SetYAMLParser<T> extends CollectionYAMLParser<T, Set<T>> {
     @Override
     protected @NotNull BiFunctionException<@NotNull IConfiguration, @NotNull String, @Nullable Set<T>> getLoader() {
         return (c, s) -> {
-            if (c == null || s == null) return null;
             @Nullable Collection<T> object = super.getLoader().apply(c, s);
-            if (object == null) return null;
             return new HashSet<>(object);
         };
     }

@@ -10,7 +10,6 @@ import it.fulminazzo.yamlparser.objects.yamlelements.YAMLParser;
 import it.fulminazzo.yamlparser.utils.FileUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.joor.Reflect;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.representer.Representer;
@@ -171,8 +170,12 @@ public class FileConfiguration extends SimpleConfiguration {
                     if (Modifier.isFinal(clazz.getModifiers()) ||
                             Modifier.isAbstract(clazz.getModifiers()) ||
                             !Modifier.isPublic(clazz.getModifiers())) continue;
-                    YAMLParser<?> parser = Reflect.onClass(clazz).create().get();
-                    if (parser != null) yamlParsers.add(parser);
+                    try {
+                        YAMLParser<?> parser = (YAMLParser<?>) clazz.getConstructor().newInstance();
+                        yamlParsers.add(parser);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
                 } catch (NoSuchMethodException ignored) {}
         return yamlParsers;
     }

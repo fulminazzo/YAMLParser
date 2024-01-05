@@ -228,6 +228,7 @@ public class FileConfigurationTest {
         assertEquals(new LinkedList<>(Arrays.asList(new ArrayYAMLParser<>(),
                         new DateYAMLParser(),
                         new ListYAMLParser<>(),
+                        new MapYAMLParser<>(),
                         new SetYAMLParser<>(),
                         new UUIDYAMLParser(),
                         new SerializableYAMLParser()

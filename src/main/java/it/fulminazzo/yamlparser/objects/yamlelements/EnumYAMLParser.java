@@ -26,19 +26,13 @@ public class EnumYAMLParser<E extends Enum<E>> extends YAMLParser<E> {
     @Override
     protected @NotNull BiFunctionException<@NotNull IConfiguration, @NotNull String, @Nullable E> getLoader() {
         return (c, s) -> {
-            if (c == null || s == null) return null;
             String enumString = c.getString(s);
-            if (enumString == null) return null;
             return E.valueOf(getOClass(), enumString);
         };
     }
 
     @Override
-    protected @NotNull TriConsumer<@NotNull IConfiguration, @NotNull String, @NotNull E> getDumper() {
-        return (c, s, e) -> {
-            if (c == null || s == null) return;
-            if (e == null) return;
-            c.set(s, e.name());
-        };
+    protected @NotNull TriConsumer<@NotNull IConfiguration, @NotNull String, @Nullable E> getDumper() {
+        return (c, s, e) -> c.set(s, e == null ? null : e.name());
     }
 }

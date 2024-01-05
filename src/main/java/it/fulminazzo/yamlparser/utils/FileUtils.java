@@ -224,13 +224,13 @@ public class FileUtils {
      */
     @NotNull
     public static String formatStringToYaml(@NotNull String string) {
-        String result = "";
+        StringBuilder result = new StringBuilder();
         for (String s : string.split("")) {
-            if (s.matches("[A-Z \t\n\r_]") && !result.isEmpty() && !result.endsWith("-")) {
-                result += "-";
+            if (s.matches("[A-Z \t\n\r_]") && (result.length() > 0) && !result.toString().endsWith("-")) {
+                result.append("-");
                 if (!s.matches("[A-Z]")) continue;
-            } result += s.toLowerCase();
+            } result.append(s.toLowerCase());
         }
-        return result;
+        return result.toString();
     }
 }

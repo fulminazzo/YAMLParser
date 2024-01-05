@@ -32,9 +32,7 @@ public class ListYAMLParser<T> extends CollectionYAMLParser<T, List<T>> {
     @Override
     protected @NotNull BiFunctionException<@NotNull IConfiguration, @NotNull String, @Nullable List<T>> getLoader() {
         return (c, s) -> {
-            if (c == null || s == null) return null;
             Collection<T> loaded = super.getLoader().apply(c, s);
-            if (loaded == null) return null;
             return new ArrayList<>(loaded);
         };
     }

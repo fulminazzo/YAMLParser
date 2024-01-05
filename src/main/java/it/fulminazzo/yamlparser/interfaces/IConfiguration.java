@@ -4,14 +4,15 @@ import it.fulminazzo.fulmicollection.utils.EnumUtils;
 import it.fulminazzo.fulmicollection.utils.ReflectionUtils;
 import it.fulminazzo.yamlparser.exceptions.yamlexceptions.CannotBeNullException;
 import it.fulminazzo.yamlparser.exceptions.yamlexceptions.UnexpectedClassException;
+import it.fulminazzo.yamlparser.exceptions.yamlexceptions.YAMLException;
 import it.fulminazzo.yamlparser.objects.configurations.ConfigurationSection;
 import it.fulminazzo.yamlparser.objects.configurations.FileConfiguration;
 import it.fulminazzo.yamlparser.objects.configurations.checkers.ConfigurationChecker;
 import it.fulminazzo.yamlparser.objects.yamlelements.YAMLParser;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.joor.Reflect;
 
+import java.lang.reflect.Method;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -182,7 +183,14 @@ public interface IConfiguration {
                     if (objectString.isEmpty()) return (T) new Character((char) 0);
                     return (T) new Character(objectString.charAt(0));
                 }
-                return Reflect.onClass(clazz).call("valueOf", object.toString()).get();
+                try {
+                    Class<?> tmp = ReflectionUtils.getWrapperClass(clazz);
+                    object = object.toString();
+                    Method method = tmp.getMethod("valueOf", object.getClass());
+                    return (T) method.invoke(tmp, object);
+                } catch (Exception e) {
+                    throwException(path, object, e);
+                }
             }
             if (clazz.getCanonicalName().equals("java.util.Arrays.ArrayList") && object instanceof List)
                 return (T) new ArrayList<>((Collection<?>) object);
@@ -210,11 +218,11 @@ public interface IConfiguration {
                          CannotBeNullException e) {
                     if (parsers.size() == 1) {
                         if (e instanceof IllegalArgumentException) throw e;
-                        throw new RuntimeException(e);
+                        throwException(path, object, e);
                     }
                 } catch (Exception e) {
                     if (e instanceof RuntimeException) throw (RuntimeException) e;
-                    throw new RuntimeException(e);
+                    throwException(path, object, e);
                 }
         return (T) object;
     }
@@ -891,7 +899,8 @@ public interface IConfiguration {
         if (object == null && checkNonNull()) throw new CannotBeNullException(getCurrentPath(), name, name);
         if (object == null) return true;
         if (clazz.isAssignableFrom(object.getClass())) return true;
-        if (ReflectionUtils.getPrimitiveClass(clazz).isAssignableFrom(ReflectionUtils.getPrimitiveClass(object.getClass()))) return true;
+        Class<?> tmp = ReflectionUtils.getPrimitiveClass(clazz);
+        if (tmp != null && tmp.isAssignableFrom(ReflectionUtils.getPrimitiveClass(object.getClass()))) return true;
         throw new UnexpectedClassException(getCurrentPath(), name, object, clazz);
     }
 
@@ -961,14 +970,21 @@ public interface IConfiguration {
      * @return the current path
      */
     default String getCurrentPath() {
-        String path = getName();
+        StringBuilder path = new StringBuilder(getName());
         IConfiguration parent = getParent();
         while (parent != null) {
             String parentName = parent.getName();
-            if (!parentName.isEmpty()) path = parentName + "." + path;
+            if (!parentName.isEmpty()) path.insert(0, parentName + ".");
             parent = parent.getParent();
         }
-        return path;
+        return path.toString();
+    }
+
+    default void throwException(String path, Object object, Exception e) {
+        path = path == null ? "null" : path;
+        String currentPath = getCurrentPath();
+        if (currentPath != null && !currentPath.isEmpty()) path = currentPath + "." + path;
+        throw new YAMLException(path, object, e.getClass().getSimpleName() + " " + e.getMessage());
     }
 
     /**
@@ -1027,18 +1043,18 @@ public interface IConfiguration {
      */
     default @NotNull String toString(@Nullable String start) {
         if (start == null) start = "";
-        String result = "";
+        StringBuilder result = new StringBuilder();
         Map<String, Object> map = toMap();
         for (Map.Entry<String, Object> entry : map.entrySet()) {
             String key = entry.getKey();
             Object value = entry.getValue();
-            result += String.format("%s%s: ", start, key);
+            result.append(String.format("%s%s: ", start, key));
             if (value instanceof IConfiguration) {
-                result += "\n";
-                result += ((IConfiguration) value).toString(start + "  ");
-            } else result += String.format("%s\n", value);
+                result.append("\n");
+                result.append(((IConfiguration) value).toString(start + "  "));
+            } else result.append(String.format("%s\n", value));
         }
-        return result;
+        return result.toString();
     }
 
     /**

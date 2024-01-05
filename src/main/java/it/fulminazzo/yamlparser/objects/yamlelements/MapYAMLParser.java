@@ -1,12 +1,10 @@
 package it.fulminazzo.yamlparser.objects.yamlelements;
 
-import it.fulminazzo.fulmicollection.utils.ReflectionUtils;
-import it.fulminazzo.fulmicollection.utils.SerializeUtils;
-
-import it.fulminazzo.yamlparser.exceptions.yamlexceptions.CannotBeNullException;
-import it.fulminazzo.yamlparser.interfaces.IConfiguration;
 import it.fulminazzo.fulmicollection.interfaces.functions.BiFunctionException;
 import it.fulminazzo.fulmicollection.interfaces.functions.TriConsumer;
+import it.fulminazzo.fulmicollection.utils.ReflectionUtils;
+import it.fulminazzo.fulmicollection.utils.SerializeUtils;
+import it.fulminazzo.yamlparser.interfaces.IConfiguration;
 import it.fulminazzo.yamlparser.objects.configurations.ConfigurationSection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -24,9 +22,16 @@ import java.util.function.Function;
  * @param <V> the type of the values
  */
 @SuppressWarnings("unchecked")
-final class MapYAMLParser<K, V> extends YAMLParser<Map<K, V>> {
+public class MapYAMLParser<K, V> extends YAMLParser<Map<K, V>> {
     private final Function<String, K> keyLoader;
     private final Function<K, String> keyParser;
+
+    /**
+     * Instantiates a new Map yaml parser.
+     */
+    public MapYAMLParser() {
+        this(s -> (K) s, Object::toString);
+    }
 
     /**
      * Instantiates a new Map YAML parser.
@@ -48,13 +53,11 @@ final class MapYAMLParser<K, V> extends YAMLParser<Map<K, V>> {
     @Override
     protected @NotNull BiFunctionException<@NotNull IConfiguration, @NotNull String, @Nullable Map<K, V>> getLoader() {
         return (c, s) -> {
-            if (c == null || s == null) return null;
             ConfigurationSection section = c.getConfigurationSection(s);
-            if (section == null) return null;
             Class<V> oClass = null;
             String valueClass = SerializeUtils.deserializeFromBase64(section.getString("value-class"));
             if (valueClass != null) oClass = ReflectionUtils.getClass(valueClass);
-            if (oClass == null) throw new CannotBeNullException(c.getCurrentPath(), "." + s, "value-class");
+            if (oClass == null) return new HashMap<>();
             HashMap<K, V> map = new HashMap<>();
             for (String k : section.getKeys()) {
                 if (k.equalsIgnoreCase("value-class")) continue;
@@ -72,8 +75,6 @@ final class MapYAMLParser<K, V> extends YAMLParser<Map<K, V>> {
     @Override
     protected @NotNull TriConsumer<@NotNull IConfiguration, @NotNull String, @NotNull Map<K, V>> getDumper() {
         return (c, s, m) -> {
-            if (c == null || s == null) return;
-            if (m == null) return;
             ConfigurationSection section = c.createSection(s);
             m.forEach((k, v) -> section.set(keyParser.apply(k), v));
             V v = m.values().stream().filter(Objects::nonNull).findFirst().orElse(null);

@@ -31,7 +31,6 @@ class CollectionYAMLParser<T, C extends Collection<T>> extends YAMLParser<C> {
     @Override
     protected @NotNull BiFunctionException<@NotNull IConfiguration, @NotNull String, @Nullable C> getLoader() {
         return (c, s) -> {
-            if (c == null || s == null) return null;
             if (c.isConfigurationSection(s)) {
                 @Nullable Map<Integer, T> map = mapYamlParser.load(c, s);
                 return map == null ? null : (C) map.values();
@@ -41,9 +40,9 @@ class CollectionYAMLParser<T, C extends Collection<T>> extends YAMLParser<C> {
     }
 
     @Override
-    protected @NotNull TriConsumer<@NotNull IConfiguration, @NotNull String, @NotNull C> getDumper() {
+    protected @NotNull TriConsumer<@NotNull IConfiguration, @NotNull String, @Nullable C> getDumper() {
         return (c, s, o) -> {
-            if (c == null || s == null) return;
+            c.set(s, null);
             if (o == null) return;
             List<T> list = new ArrayList<>(o);
             if (IConfiguration.isPrimitiveOrWrapper(list)) {

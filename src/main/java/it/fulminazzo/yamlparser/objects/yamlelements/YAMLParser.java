@@ -55,7 +55,7 @@ public abstract class YAMLParser<O> {
         if (section == null) return;
         if (path == null) throw new GeneralCannotBeNullException("Path");
         if (o == null) section.set(path, null);
-        getDumper().apply(section, path, o);
+        getDumper().accept(section, path, o);
     }
 
     /**
@@ -70,7 +70,7 @@ public abstract class YAMLParser<O> {
      *
      * @return the dumper
      */
-    protected abstract TriConsumer<@NotNull IConfiguration, @NotNull String, @NotNull O> getDumper();
+    protected abstract TriConsumer<@NotNull IConfiguration, @NotNull String, @Nullable O> getDumper();
 
     @Override
     public boolean equals(Object o) {

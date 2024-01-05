@@ -37,7 +37,6 @@ public class ArrayYAMLParser<T> extends YAMLParser<T[]> {
     @Override
     protected @NotNull BiFunctionException<@NotNull IConfiguration, @NotNull String, @Nullable T[]> getLoader() {
         return (c, s) -> {
-            if (c == null || s == null) return null;
             List<T> tmp = listYamlParser.load(c, s);
             if (tmp == null) return null;
             T elem = tmp.stream().filter(Objects::nonNull).findAny().orElse(null);

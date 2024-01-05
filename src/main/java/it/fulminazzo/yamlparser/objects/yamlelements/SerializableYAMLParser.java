@@ -29,9 +29,12 @@ public class SerializableYAMLParser extends YAMLParser<Serializable> {
     @Override
     protected @NotNull BiFunctionException<@NotNull IConfiguration, @NotNull String, @Nullable Serializable> getLoader() {
         return (c, s) -> {
-            if (c == null || s == null) return null;
-            String string = c.getString(s);
-            return string == null ? null : SerializeUtils.deserializeFromBase64(string);
+            try {
+                String string = c.getString(s);
+                return string == null ? null : SerializeUtils.deserializeFromBase64(string);
+            } catch (IllegalArgumentException e) {
+                return null;
+            }
         };
     }
 
@@ -42,11 +45,6 @@ public class SerializableYAMLParser extends YAMLParser<Serializable> {
      */
     @Override
     protected @NotNull TriConsumer<@NotNull IConfiguration, @NotNull String, @NotNull Serializable> getDumper() {
-        return (c, s, ser) -> {
-            if (c == null || s == null) return;
-            if (ser == null) return;
-            String serialized = SerializeUtils.serializeToBase64(ser);
-            if (serialized != null) c.set(s, serialized);
-        };
+        return (c, s, ser) -> c.set(s, SerializeUtils.serializeToBase64(ser));
     }
 }

@@ -28,7 +28,6 @@ public class DateYAMLParser extends YAMLParser<Date> {
     @Override
     protected @NotNull BiFunctionException<@NotNull IConfiguration, @NotNull String, @Nullable Date> getLoader() {
         return (c, s) -> {
-            if (c == null || s == null) return null;
             Long l = c.getLong(s);
             return l == null ? null : new Date(l);
         };
@@ -40,11 +39,7 @@ public class DateYAMLParser extends YAMLParser<Date> {
      * @return the dumper
      */
     @Override
-    protected @NotNull TriConsumer<@NotNull IConfiguration, @NotNull String, @NotNull Date> getDumper() {
-        return (c, s, d) -> {
-            if (c == null || s == null) return;
-            if (d == null) return;
-            c.set(s, d.getTime());
-        };
+    protected @NotNull TriConsumer<@NotNull IConfiguration, @NotNull String, @Nullable Date> getDumper() {
+        return (c, s, d) -> c.set(s, d == null ? null : d.getTime());
     }
 }
