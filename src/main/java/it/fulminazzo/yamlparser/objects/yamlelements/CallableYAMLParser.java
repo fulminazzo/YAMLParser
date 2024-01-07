@@ -12,6 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 
 /**
  * Callable YAML parser.
@@ -40,6 +41,7 @@ public class CallableYAMLParser<T> extends YAMLParser<T> {
             T t = function.apply(section);
             if (t == null) return null;
             for (Field field : ReflectionUtils.getFields(t)) {
+                if (Modifier.isStatic(field.getModifiers())) continue;
                 if (field.isAnnotationPresent(PreventSaving.class)) continue;
                 Object object = section.get(FileUtils.formatStringToYaml(field.getName()), field.getType());
                 if (object == null) continue;
@@ -56,6 +58,7 @@ public class CallableYAMLParser<T> extends YAMLParser<T> {
             if (t == null) return;
             ConfigurationSection section = c.createSection(s);
             ReflectionUtils.getFields(t).forEach(field -> {
+                if (Modifier.isStatic(field.getModifiers())) return;
                 if (field.isAnnotationPresent(PreventSaving.class)) return;
                 String fieldName = field.getName();
                 try {
