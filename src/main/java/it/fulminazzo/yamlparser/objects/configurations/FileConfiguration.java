@@ -212,7 +212,7 @@ public class FileConfiguration extends SimpleConfiguration {
      * @return the parsers
      */
     public static @NotNull LinkedList<YAMLParser<?>> getParsers() {
-        if (!parsers.isEmpty()) {
+        if (!parsers.isEmpty() && !(parsers.get(parsers.size() - 1) instanceof SerializableYAMLParser)) {
             parsers.removeIf(s -> s instanceof SerializableYAMLParser);
             parsers.add(new SerializableYAMLParser());
         }
