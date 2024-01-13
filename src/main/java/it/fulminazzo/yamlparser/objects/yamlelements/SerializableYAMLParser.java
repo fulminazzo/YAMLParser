@@ -30,7 +30,7 @@ public class SerializableYAMLParser extends YAMLParser<Serializable> {
     protected @NotNull BiFunctionException<@NotNull IConfiguration, @NotNull String, @Nullable Serializable> getLoader() {
         return (c, s) -> {
             try {
-                String string = c.getString(s);
+                String string = (String) c.getObject(s);
                 return string == null ? null : SerializeUtils.deserializeFromBase64(string);
             } catch (IllegalArgumentException e) {
                 return null;

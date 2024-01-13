@@ -186,6 +186,7 @@ public interface IConfiguration {
                 try {
                     Class<?> tmp = ReflectionUtils.getWrapperClass(clazz);
                     object = object.toString();
+                    if (tmp.equals(String.class)) return (T) object;
                     Method method = tmp.getMethod("valueOf", object.getClass());
                     return (T) method.invoke(tmp, object);
                 } catch (Exception e) {
