@@ -160,7 +160,7 @@ public class FileConfiguration extends SimpleConfiguration {
      * @return the parsers from package
      */
     public static @NotNull List<YAMLParser<?>> getParsersFromPackage(String packageName) {
-        Set<Class<?>> classes = ClassUtils.findClassesInPackage(packageName, FileConfiguration.class);
+        Set<Class<?>> classes = ClassUtils.findClassesInPackage(packageName);
         List<YAMLParser<?>> yamlParsers = new LinkedList<>();
         for (Class<?> clazz : classes)
             if (YAMLParser.class.isAssignableFrom(clazz))
