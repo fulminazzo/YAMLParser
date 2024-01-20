@@ -1,6 +1,6 @@
 package it.fulminazzo.yamlparser.utils;
 
-import it.fulminazzo.yamlparser.enums.LogMessage;
+import it.fulminazzo.yamlparser.logging.LogMessage;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
