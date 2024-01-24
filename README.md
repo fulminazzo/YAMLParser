@@ -18,7 +18,7 @@ To start using the project, import it with Maven or Gradle:
 <dependency>
     <groupId>it.fulminazzo</groupId>
     <artifactId>YAMLParser</artifactId>
-    <version>1.3</version>
+    <version>LATEST</version>
 </dependency>
 ```
 - **Gradle**:
@@ -28,7 +28,7 @@ repositories {
 }
 
 dependencies {
-  implementation 'it.fulminazzo.YAMLParser:1.3'
+  implementation 'it.fulminazzo:YAMLParser:latest.release'
 }
 ```
 
