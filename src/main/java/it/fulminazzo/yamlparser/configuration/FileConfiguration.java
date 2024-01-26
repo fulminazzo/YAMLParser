@@ -20,7 +20,7 @@ import java.util.*;
 /**
  * Represents a YAML File configuration.
  */
-public class FileConfiguration extends SimpleConfiguration {
+public final class FileConfiguration extends SimpleConfiguration {
     private final static LinkedList<YAMLParser<?>> parsers = new LinkedList<>();
     private final @Nullable File file;
 

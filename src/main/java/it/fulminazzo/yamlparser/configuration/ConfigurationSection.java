@@ -8,7 +8,7 @@ import java.util.Map;
  * Represents a YAML Section.
  */
 @Getter
-public class ConfigurationSection extends SimpleConfiguration {
+public final class ConfigurationSection extends SimpleConfiguration {
     private final IConfiguration parent;
 
     public ConfigurationSection(IConfiguration parent, String name) {
