@@ -1,6 +1,5 @@
-package it.fulminazzo.yamlparser.configurations;
+package it.fulminazzo.yamlparser.configuration;
 
-import it.fulminazzo.yamlparser.configurations.SimpleConfiguration;
 import org.junit.jupiter.api.Test;
 
 import java.util.LinkedHashMap;

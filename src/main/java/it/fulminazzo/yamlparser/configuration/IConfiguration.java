@@ -1,10 +1,10 @@
-package it.fulminazzo.yamlparser.configurations;
+package it.fulminazzo.yamlparser.configuration;
 
 import it.fulminazzo.fulmicollection.utils.EnumUtils;
 import it.fulminazzo.fulmicollection.utils.ReflectionUtils;
-import it.fulminazzo.yamlparser.configurations.checkers.ConfigurationChecker;
-import it.fulminazzo.yamlparser.configurations.exceptions.CannotBeNullException;
-import it.fulminazzo.yamlparser.configurations.exceptions.UnexpectedClassException;
+import it.fulminazzo.yamlparser.configuration.checkers.ConfigurationChecker;
+import it.fulminazzo.yamlparser.configuration.exceptions.CannotBeNullException;
+import it.fulminazzo.yamlparser.configuration.exceptions.UnexpectedClassException;
 import it.fulminazzo.yamlparser.exceptions.YAMLException;
 import it.fulminazzo.yamlparser.parsers.YAMLParser;
 import org.jetbrains.annotations.NotNull;

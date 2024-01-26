@@ -1,9 +1,9 @@
-package it.fulminazzo.yamlparser.configurations.checkers;
+package it.fulminazzo.yamlparser.configuration.checkers;
 
 import it.fulminazzo.fulmicollection.objects.Printable;
 
 import it.fulminazzo.fulmicollection.utils.ReflectionUtils;
-import it.fulminazzo.yamlparser.configurations.IConfiguration;
+import it.fulminazzo.yamlparser.configuration.IConfiguration;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

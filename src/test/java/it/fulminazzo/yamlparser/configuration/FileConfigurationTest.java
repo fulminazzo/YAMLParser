@@ -1,7 +1,7 @@
-package it.fulminazzo.yamlparser.configurations;
+package it.fulminazzo.yamlparser.configuration;
 
 import it.fulminazzo.yamlparser.logging.LogMessage;
-import it.fulminazzo.yamlparser.configurations.exceptions.CannotBeNullException;
+import it.fulminazzo.yamlparser.configuration.exceptions.CannotBeNullException;
 import it.fulminazzo.yamlparser.parsers.exceptions.EmptyArrayException;
 import it.fulminazzo.yamlparser.parsers.*;
 import it.fulminazzo.yamlparser.utils.FileUtils;

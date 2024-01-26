@@ -1,4 +1,4 @@
-package it.fulminazzo.yamlparser.configurations.exceptions;
+package it.fulminazzo.yamlparser.configuration.exceptions;
 
 import it.fulminazzo.yamlparser.logging.LogMessage;
 import it.fulminazzo.yamlparser.exceptions.YAMLException;

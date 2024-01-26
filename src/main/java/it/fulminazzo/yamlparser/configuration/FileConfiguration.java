@@ -1,4 +1,4 @@
-package it.fulminazzo.yamlparser.configurations;
+package it.fulminazzo.yamlparser.configuration;
 
 import it.fulminazzo.fulmicollection.exceptions.GeneralCannotBeNullException;
 import it.fulminazzo.fulmicollection.utils.ClassUtils;

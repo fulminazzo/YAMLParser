@@ -1,4 +1,4 @@
-package it.fulminazzo.yamlparser.configurations;
+package it.fulminazzo.yamlparser.configuration;
 
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
@@ -11,7 +11,7 @@ import java.util.Objects;
 /**
  * Represents a Simple YAML Configuration.
  */
-class SimpleConfiguration implements IConfiguration {
+public class SimpleConfiguration implements IConfiguration {
     @Getter
     protected final String name;
     protected final @NotNull Map<String, Object> map;

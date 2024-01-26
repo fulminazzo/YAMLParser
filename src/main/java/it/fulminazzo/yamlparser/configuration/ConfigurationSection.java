@@ -1,4 +1,4 @@
-package it.fulminazzo.yamlparser.configurations;
+package it.fulminazzo.yamlparser.configuration;
 
 import lombok.Getter;
 

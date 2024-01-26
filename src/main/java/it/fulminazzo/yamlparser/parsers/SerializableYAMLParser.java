@@ -1,7 +1,7 @@
 package it.fulminazzo.yamlparser.parsers;
 
 import it.fulminazzo.fulmicollection.utils.SerializeUtils;
-import it.fulminazzo.yamlparser.configurations.IConfiguration;
+import it.fulminazzo.yamlparser.configuration.IConfiguration;
 import it.fulminazzo.fulmicollection.interfaces.functions.BiFunctionException;
 import it.fulminazzo.fulmicollection.interfaces.functions.TriConsumer;
 import org.jetbrains.annotations.NotNull;

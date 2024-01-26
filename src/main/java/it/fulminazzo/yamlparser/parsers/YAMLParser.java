@@ -1,7 +1,7 @@
 package it.fulminazzo.yamlparser.parsers;
 
 import it.fulminazzo.fulmicollection.exceptions.GeneralCannotBeNullException;
-import it.fulminazzo.yamlparser.configurations.IConfiguration;
+import it.fulminazzo.yamlparser.configuration.IConfiguration;
 import it.fulminazzo.fulmicollection.interfaces.functions.BiFunctionException;
 import it.fulminazzo.fulmicollection.interfaces.functions.TriConsumer;
 import lombok.Getter;

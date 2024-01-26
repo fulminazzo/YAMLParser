@@ -1,4 +1,4 @@
-package it.fulminazzo.yamlparser.configurations.checkers;
+package it.fulminazzo.yamlparser.configuration.checkers;
 
 import it.fulminazzo.yamlparser.logging.LogMessage;
 import lombok.Getter;

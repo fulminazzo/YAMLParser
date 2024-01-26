@@ -1,7 +1,5 @@
-package it.fulminazzo.yamlparser.configurations;
+package it.fulminazzo.yamlparser.configuration;
 
-import it.fulminazzo.yamlparser.configurations.ConfigurationSection;
-import it.fulminazzo.yamlparser.configurations.FileConfiguration;
 import org.junit.jupiter.api.*;
 
 import java.io.ByteArrayOutputStream;

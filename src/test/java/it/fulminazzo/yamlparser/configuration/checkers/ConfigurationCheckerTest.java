@@ -1,7 +1,7 @@
-package it.fulminazzo.yamlparser.configurations.checkers;
+package it.fulminazzo.yamlparser.configuration.checkers;
 
 import it.fulminazzo.yamlparser.logging.LogMessage;
-import it.fulminazzo.yamlparser.configurations.FileConfiguration;
+import it.fulminazzo.yamlparser.configuration.FileConfiguration;
 import it.fulminazzo.yamlparser.utils.FileUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

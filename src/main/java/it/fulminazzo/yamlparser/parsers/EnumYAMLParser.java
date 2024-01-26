@@ -2,7 +2,7 @@ package it.fulminazzo.yamlparser.parsers;
 
 import it.fulminazzo.fulmicollection.interfaces.functions.BiFunctionException;
 import it.fulminazzo.fulmicollection.interfaces.functions.TriConsumer;
-import it.fulminazzo.yamlparser.configurations.IConfiguration;
+import it.fulminazzo.yamlparser.configuration.IConfiguration;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
