@@ -4,7 +4,6 @@ This project aims to provide a simple way of **accessing data** from **YAML file
 It uses the following **libraries**: 
 - [SnakeYAML](https://bitbucket.org/snakeyaml/snakeyaml/src/master/)
 - [FulmiCollection](https://github.com/Fulminazzo/FulmiCollection)
-- [jOOR](https://github.com/jOOQ/jOOR)
 
 To start using the project, import it with Maven or Gradle:
 - **Maven**:
