@@ -1,9 +1,9 @@
 package it.fulminazzo.yamlparser.configuration;
 
-import it.fulminazzo.yamlparser.logging.LogMessage;
 import it.fulminazzo.yamlparser.configuration.exceptions.CannotBeNullException;
-import it.fulminazzo.yamlparser.parsers.exceptions.EmptyArrayException;
+import it.fulminazzo.yamlparser.logging.LogMessage;
 import it.fulminazzo.yamlparser.parsers.*;
+import it.fulminazzo.yamlparser.parsers.exceptions.EmptyArrayException;
 import it.fulminazzo.yamlparser.utils.FileUtils;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -240,6 +240,29 @@ public class FileConfigurationTest {
     void testRemoveParsersFromPackage() {
         FileConfiguration.removeParsers(UUIDYAMLParser.class.getPackage().getName());
         assertEquals(new LinkedList<>(), FileConfiguration.getParsers());
+    }
+
+    @Test
+    void listShouldBeParsed() {
+        ConfigurationSection s1;
+        SimpleConfiguration c = new SimpleConfiguration();
+
+        final List<ConfigurationSection> expected = new LinkedList<>();
+        s1 = new ConfigurationSection(c, "0");
+        s1.set("id", "spigotmc-repo");
+        s1.set("url", "https://hub.spigotmc.org/nexus/content/repositories/snapshots/");
+        expected.add(s1);
+        s1 = new ConfigurationSection(c, "1");
+        s1.set("id", "sonatype");
+        s1.set("url", "https://oss.sonatype.org/content/groups/public/");
+        expected.add(s1);
+        s1 = new ConfigurationSection(c, "2");
+        s1.set("id", "paper-repo");
+        s1.set("url", "https://repo.papermc.io/repository/maven-public/");
+        expected.add(s1);
+
+        final FileConfiguration actual = new FileConfiguration(new File("build/resources/test/list.yml"));
+        assertEquals(expected, actual.getObjectList("repositories"));
     }
 }
 

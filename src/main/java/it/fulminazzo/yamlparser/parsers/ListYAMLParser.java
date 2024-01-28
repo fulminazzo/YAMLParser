@@ -1,5 +1,6 @@
 package it.fulminazzo.yamlparser.parsers;
 
+import it.fulminazzo.fulmicollection.interfaces.functions.TriConsumer;
 import it.fulminazzo.yamlparser.configuration.IConfiguration;
 import it.fulminazzo.fulmicollection.interfaces.functions.BiFunctionException;
 import org.jetbrains.annotations.NotNull;
@@ -8,6 +9,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * List YAML parser.
@@ -33,7 +35,21 @@ public class ListYAMLParser<T> extends CollectionYAMLParser<T, List<T>> {
     protected @NotNull BiFunctionException<@NotNull IConfiguration, @NotNull String, @Nullable List<T>> getLoader() {
         return (c, s) -> {
             Collection<T> loaded = super.getLoader().apply(c, s);
-            return new ArrayList<>(loaded);
+            return loaded == null ? null : new ArrayList<>(loaded);
+        };
+    }
+
+    @Override
+    protected @NotNull TriConsumer<@NotNull IConfiguration, @NotNull String, @Nullable List<T>> getDumper() {
+        return (c, s, o) -> {
+            if (o != null && !o.isEmpty()) {
+                Object firstNonNull = o.stream().filter(Objects::nonNull).findFirst().orElse(null);
+                if (firstNonNull instanceof IConfiguration) {
+                    c.toMap().put(s, o);
+                    return;
+                }
+            }
+            super.getDumper().accept(c, s, o);
         };
     }
 }

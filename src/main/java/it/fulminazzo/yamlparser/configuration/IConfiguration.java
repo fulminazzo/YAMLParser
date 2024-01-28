@@ -10,8 +10,11 @@ import it.fulminazzo.yamlparser.parsers.YAMLParser;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -186,6 +189,12 @@ public interface IConfiguration {
                     object = object.toString();
                     if (tmp.equals(String.class)) return (T) object;
                     Method method = tmp.getMethod("valueOf", object.getClass());
+                    if (tmp.equals(Integer.class)) {
+                        String str = object.toString();
+                        final Matcher matcher = Pattern.compile(".*(\\.0+)").matcher(str);
+                        if (matcher.matches()) str = str.substring(0, (str.length()) - matcher.group(1).length());
+                        object = str;
+                    }
                     return (T) method.invoke(tmp, object);
                 } catch (Exception e) {
                     throwException(path, object, e);
@@ -979,7 +988,8 @@ public interface IConfiguration {
         return path.toString();
     }
 
-    default void throwException(String path, Object object, Exception e) {
+    default void throwException(String path, Object object, Throwable e) {
+        if (e instanceof RuntimeException || e instanceof InvocationTargetException) e = e.getCause();
         path = path == null ? "null" : path;
         String currentPath = getCurrentPath();
         if (currentPath != null && !currentPath.isEmpty()) path = currentPath + "." + path;
@@ -1068,7 +1078,17 @@ public interface IConfiguration {
         if (map == null) return treeMap;
         map.forEach((k, v) -> {
             if (v instanceof Map) treeMap.put(k.toString(), new ConfigurationSection(parent, k.toString(), (Map<?, ?>) v));
-            else treeMap.put(k.toString(), v);
+            else {
+                if (v instanceof List) {
+                    List<Object> list = (List<Object>) v;
+                    for (int i = 0; i < list.size(); i++) {
+                        Object v2 = list.get(i);
+                        if (v2 instanceof Map)
+                            list.set(i, new ConfigurationSection(parent, String.valueOf(i), (Map<?, ?>) v2));
+                    }
+                }
+                treeMap.put(k.toString(), v);
+            }
         });
         return treeMap;
     }
@@ -1085,6 +1105,15 @@ public interface IConfiguration {
         Map<String, Object> map = config.toMap();
         map.forEach((String k, @Nullable Object v) -> {
             if (v instanceof IConfiguration) v = configToGeneralMap((IConfiguration) v);
+            else if (v instanceof List) {
+                List<Object> list = new LinkedList<>((Collection<?>) v);
+                for (int i = 0; i < list.size(); i++) {
+                    Object v2 = list.get(i);
+                    if (v2 instanceof ConfigurationSection)
+                        list.set(i, configToGeneralMap((IConfiguration) v2));
+                }
+                v = list;
+            }
             treeMap.put(k, v);
         });
         return treeMap;
