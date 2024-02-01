@@ -243,6 +243,17 @@ public class FileConfigurationTest {
     }
 
     @Test
+    void testDottedValues() throws IOException {
+        final File parent = new File(filePath).getParentFile();
+        final File file = new File(parent, "test-dot.yml");
+        final String fileContents = FileUtils.readFileToString(file) + "\n";
+        FileConfiguration config = new FileConfiguration(file);
+        assertEquals(1, config.getInteger("dotted\\.value"));
+        config.save();
+        assertEquals(fileContents, FileUtils.readFileToString(file));
+    }
+
+    @Test
     void listShouldBeParsed() {
         ConfigurationSection s1;
         SimpleConfiguration c = new SimpleConfiguration();

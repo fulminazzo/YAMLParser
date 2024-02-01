@@ -966,9 +966,9 @@ public interface IConfiguration {
      */
     default @NotNull List<String> parsePath(@NotNull String path) {
         List<String> list = new ArrayList<>();
-        for (String p : path.split("\\."))
-            if (p.trim().isEmpty()) return list;
-            else list.add(p);
+        Matcher matcher = Pattern.compile("((?:\\\\\\.|[^.])+)(?:\\.|$)").matcher(path);
+        while (matcher.find())
+            list.add(matcher.group(1));
         return list;
     }
 
@@ -1077,7 +1077,8 @@ public interface IConfiguration {
         LinkedHashMap<String, Object> treeMap = new LinkedHashMap<>();
         if (map == null) return treeMap;
         map.forEach((k, v) -> {
-            if (v instanceof Map) treeMap.put(k.toString(), new ConfigurationSection(parent, k.toString(), (Map<?, ?>) v));
+            final String key = k.toString().replace(".", "\\.");
+            if (v instanceof Map) treeMap.put(key, new ConfigurationSection(parent, key, (Map<?, ?>) v));
             else {
                 if (v instanceof List) {
                     List<Object> list = (List<Object>) v;
@@ -1087,7 +1088,7 @@ public interface IConfiguration {
                             list.set(i, new ConfigurationSection(parent, String.valueOf(i), (Map<?, ?>) v2));
                     }
                 }
-                treeMap.put(k.toString(), v);
+                treeMap.put(key, v);
             }
         });
         return treeMap;
@@ -1103,7 +1104,8 @@ public interface IConfiguration {
         if (config == null) return null;
         LinkedHashMap<String, Object> treeMap = new LinkedHashMap<>();
         Map<String, Object> map = config.toMap();
-        map.forEach((String k, @Nullable Object v) -> {
+        map.forEach((k, v) -> {
+            k = k.replace("\\.", ".");
             if (v instanceof IConfiguration) v = configToGeneralMap((IConfiguration) v);
             else if (v instanceof List) {
                 List<Object> list = new LinkedList<>((Collection<?>) v);
