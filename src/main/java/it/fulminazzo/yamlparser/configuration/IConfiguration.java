@@ -12,6 +12,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -189,6 +190,8 @@ public interface IConfiguration {
                     object = object.toString();
                     if (tmp.equals(String.class)) return (T) object;
                     Method method = tmp.getMethod("valueOf", object.getClass());
+                    if (Number.class.isAssignableFrom(tmp) && object.toString().contains("E"))
+                        object = new BigDecimal(object.toString()).toBigInteger().toString();
                     if (tmp.equals(Integer.class)) {
                         String str = object.toString();
                         final Matcher matcher = Pattern.compile(".*(\\.0+)").matcher(str);
