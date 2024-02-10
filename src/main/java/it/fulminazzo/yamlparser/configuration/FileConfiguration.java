@@ -41,7 +41,7 @@ public final class FileConfiguration extends SimpleConfiguration {
     public FileConfiguration(@NotNull File file) {
         super("", null);
         this.file = file.getAbsoluteFile();
-        Map<Object, Object> yaml;
+        Map<?, ?> yaml;
         try {
             yaml = newYaml().load(new FileInputStream(file));
         } catch (FileNotFoundException e) {
@@ -69,7 +69,7 @@ public final class FileConfiguration extends SimpleConfiguration {
     public FileConfiguration(@Nullable File file, InputStream inputStream) {
         super("", null);
         this.file = file == null ? null : file.getAbsoluteFile();
-        Map<Object, Object> yaml = newYaml().load(inputStream);
+        Map<?, ?> yaml = newYaml().load(inputStream);
         this.map.putAll(IConfiguration.generalToConfigMap(this, yaml));
         addParsers();
     }
