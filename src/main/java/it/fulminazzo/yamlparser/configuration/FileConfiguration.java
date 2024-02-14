@@ -190,6 +190,7 @@ public final class FileConfiguration extends SimpleConfiguration {
         if (oClass == null) return null;
         if (oClass.isEnum()) return (YAMLParser<O>) new EnumYAMLParser<E>(oClass);
         if (oClass.isArray()) return (YAMLParser<O>) new ArrayYAMLParser<O>();
+        if (IConfiguration.class.isAssignableFrom(oClass)) return null;
         return (YAMLParser<O>) getParsers().stream()
                 .filter(p -> p.getOClass().isAssignableFrom(oClass))
                 .findFirst().orElse(null);

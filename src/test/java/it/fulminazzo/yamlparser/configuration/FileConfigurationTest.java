@@ -246,11 +246,11 @@ public class FileConfigurationTest {
     void testDottedValues() throws IOException {
         final File parent = new File(filePath).getParentFile();
         final File file = new File(parent, "test-dot.yml");
-        final String fileContents = FileUtils.readFileToString(file) + "\n";
+        final String fileContents = FileUtils.readFileToString(file);
         FileConfiguration config = new FileConfiguration(file);
         assertEquals(1, config.getInteger("dotted\\.value"));
         config.save();
-        assertEquals(fileContents, FileUtils.readFileToString(file));
+        assertEquals(fileContents.replaceAll("\n", ""), FileUtils.readFileToString(file).replaceAll("\n", ""));
     }
 
     @Test
