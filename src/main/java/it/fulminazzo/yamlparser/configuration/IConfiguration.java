@@ -10,6 +10,7 @@ import it.fulminazzo.yamlparser.parsers.YAMLParser;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
@@ -22,7 +23,7 @@ import java.util.stream.Collectors;
  * The interface Configuration.
  */
 @SuppressWarnings({"unchecked", "unused"})
-public interface IConfiguration {
+public interface IConfiguration extends Serializable {
 
     /**
      * Gets root.
