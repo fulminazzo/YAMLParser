@@ -993,6 +993,13 @@ public interface IConfiguration extends Serializable {
         return path.toString();
     }
 
+    /**
+     * Throw exception.
+     *
+     * @param path   the path
+     * @param object the object
+     * @param e      the e
+     */
     default void throwException(String path, Object object, Throwable e) {
         if (e instanceof RuntimeException || e instanceof InvocationTargetException) e = e.getCause();
         path = path == null ? "null" : path;
@@ -1127,7 +1134,13 @@ public interface IConfiguration extends Serializable {
         return treeMap;
     }
 
-    static String unquote(String string) {
+    /**
+     * Removes any quote from the given string.
+     *
+     * @param string the string
+     * @return the string
+     */
+    static String unquote(@Nullable String string) {
         if (string == null) return null;
         while (string.length() > 2 && string.startsWith("\"") && string.endsWith("\""))
             string = string.substring(1, string.length() - 1);
