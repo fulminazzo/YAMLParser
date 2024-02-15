@@ -149,6 +149,7 @@ public interface IConfiguration extends Serializable {
      * @param o    the object
      */
     default <O> void set(@NotNull String path, @Nullable O o) {
+        path = unquote(path);
         List<String> sectionPath = parseSectionPath(path);
         IConfiguration section = this;
         if (!sectionPath.isEmpty()) {
@@ -1081,7 +1082,7 @@ public interface IConfiguration extends Serializable {
         LinkedHashMap<String, Object> treeMap = new LinkedHashMap<>();
         if (map == null) return treeMap;
         map.forEach((k, v) -> {
-            final String key = k.toString().replace(".", "\\.");
+            final String key = unquote(k.toString().replace(".", "\\."));
             if (v instanceof Map) treeMap.put(key, new ConfigurationSection(parent, key, (Map<?, ?>) v));
             else {
                 if (v instanceof List) {
@@ -1109,6 +1110,7 @@ public interface IConfiguration extends Serializable {
         LinkedHashMap<String, Object> treeMap = new LinkedHashMap<>();
         Map<String, Object> map = config.toMap();
         map.forEach((k, v) -> {
+            k = unquote(k);
             k = k.replace("\\.", ".");
             if (v instanceof IConfiguration) v = configToGeneralMap((IConfiguration) v);
             else if (v instanceof List) {
@@ -1123,6 +1125,15 @@ public interface IConfiguration extends Serializable {
             treeMap.put(k, v);
         });
         return treeMap;
+    }
+
+    static String unquote(String string) {
+        if (string == null) return null;
+        while (string.length() > 2 && string.startsWith("\"") && string.endsWith("\""))
+            string = string.substring(1, string.length() - 1);
+        while (string.length() > 2 && string.startsWith("'") && string.endsWith("'"))
+            string = string.substring(1, string.length() - 1);
+        return string;
     }
 
     /**
