@@ -62,7 +62,7 @@ public interface IConfiguration extends Serializable {
                             .map(c -> entry.getKey() + "." + c).collect(Collectors.toList()));
                 }
             }
-        return new HashSet<>(keys);
+        return new LinkedHashSet<>(keys);
     }
 
     /**
