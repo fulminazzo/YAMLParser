@@ -1,6 +1,7 @@
 package it.fulminazzo.yamlparser.configuration;
 
 import it.fulminazzo.fulmicollection.exceptions.GeneralCannotBeNullException;
+import it.fulminazzo.fulmicollection.objects.Refl;
 import it.fulminazzo.fulmicollection.utils.ClassUtils;
 import it.fulminazzo.yamlparser.parsers.ArrayYAMLParser;
 import it.fulminazzo.yamlparser.parsers.EnumYAMLParser;
@@ -100,9 +101,13 @@ public final class FileConfiguration extends SimpleConfiguration {
      * @return the YAML with parameters.
      */
     public static @NotNull Yaml newYaml() {
-        DumperOptions dumperOptions = new DumperOptions();
-        dumperOptions.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
-        Representer representer = new Representer(dumperOptions);
+        Representer representer;
+        try {
+            representer = new Representer(new DumperOptions());
+        } catch (NoSuchMethodError e) {
+            representer = new Refl<>(Representer.class, new Object[0]).getObject();
+        }
+        representer.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
         return new Yaml(representer);
     }
 
