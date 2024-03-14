@@ -57,7 +57,7 @@ public class MapYAMLParser<K, V> extends YAMLParser<Map<K, V>> {
             Class<V> oClass = null;
             String valueClass = SerializeUtils.deserializeFromBase64(section.getString("value-class"));
             if (valueClass != null) oClass = ReflectionUtils.getClass(valueClass);
-            if (oClass == null) return new HashMap<>();
+            if (oClass == null) oClass = (Class<V>) Object.class;
             HashMap<K, V> map = new HashMap<>();
             for (String k : section.getKeys()) {
                 if (k.equalsIgnoreCase("value-class")) continue;
