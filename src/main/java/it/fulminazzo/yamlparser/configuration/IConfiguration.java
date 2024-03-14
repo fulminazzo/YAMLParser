@@ -1013,7 +1013,8 @@ public interface IConfiguration extends Serializable {
      * @param e      the e
      */
     default void throwException(String path, Object object, Throwable e) {
-        if (e instanceof RuntimeException || e instanceof InvocationTargetException) e = e.getCause();
+        if (e.getCause() != null && (e instanceof RuntimeException || e instanceof InvocationTargetException))
+            e = e.getCause();
         path = path == null ? "null" : path;
         String currentPath = getCurrentPath();
         if (currentPath != null && !currentPath.isEmpty()) path = currentPath + "." + path;
