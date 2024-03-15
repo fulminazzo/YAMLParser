@@ -197,8 +197,10 @@ public final class FileConfiguration extends SimpleConfiguration {
         if (oClass.isArray()) return (YAMLParser<O>) new ArrayYAMLParser<O>();
         if (IConfiguration.class.isAssignableFrom(oClass)) return null;
         return (YAMLParser<O>) getParsers().stream()
-                .filter(p -> p.getOClass().isAssignableFrom(oClass))
-                .findFirst().orElse(null);
+                .filter(p -> p.getOClass().equals(oClass))
+                .findFirst().orElseGet(() -> getParsers().stream()
+                        .filter(p -> p.getOClass().isAssignableFrom(oClass))
+                        .findFirst().orElse(null));
     }
 
     /**
