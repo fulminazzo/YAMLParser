@@ -830,8 +830,7 @@ public interface IConfiguration extends Serializable {
         List<?> list = getObjectList(path);
         if (list == null) return null;
         return list.stream()
-                .filter(Objects::nonNull)
-                .map(o -> clazz.isAssignableFrom(o.getClass()) ? clazz.cast(o) :
+                .map(o -> o == null ? null : clazz.isAssignableFrom(o.getClass()) ? clazz.cast(o) :
                         convertObjectToYAMLObject(path, o, clazz))
                 .filter(o -> check(path, o, clazz))
                 .collect(Collectors.toList());
