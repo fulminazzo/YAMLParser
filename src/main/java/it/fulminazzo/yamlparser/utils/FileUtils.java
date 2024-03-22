@@ -231,6 +231,6 @@ public class FileUtils {
                 if (!s.matches("[A-Z]")) continue;
             } result.append(s.toLowerCase());
         }
-        return result.toString();
+        return result.toString().replace("g-u-i", "gui");
     }
 }
