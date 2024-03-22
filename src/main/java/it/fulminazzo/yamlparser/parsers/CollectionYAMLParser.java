@@ -33,7 +33,14 @@ class CollectionYAMLParser<T, C extends Collection<T>> extends YAMLParser<C> {
         return (c, s) -> {
             if (c.isConfigurationSection(s)) {
                 @Nullable Map<Integer, T> map = mapYamlParser.load(c, s);
-                return map == null ? null : (C) map.values();
+                if (map == null) return null;
+                List<T> result = new LinkedList<>();
+                for (Integer k : map.keySet()) {
+                    if (k < 0) throw new IllegalArgumentException(String.format("Invalid number '%s'", k));
+                    while (result.size() - 1 < k) result.add(null);
+                    result.set(k, map.get(k));
+                }
+                return (C) result;
             }
             else return (C) c.getObject(s);
         };
