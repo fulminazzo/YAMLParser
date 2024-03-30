@@ -4,7 +4,6 @@ import it.fulminazzo.fulmicollection.interfaces.functions.TriConsumer;
 import it.fulminazzo.yamlparser.configuration.IConfiguration;
 import it.fulminazzo.fulmicollection.interfaces.functions.BiFunctionException;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -32,7 +31,7 @@ public class ListYAMLParser<T> extends CollectionYAMLParser<T, List<T>> {
      * @return the loader
      */
     @Override
-    protected @NotNull BiFunctionException<@NotNull IConfiguration, @NotNull String, @Nullable List<T>> getLoader() {
+    protected @NotNull BiFunctionException<IConfiguration, String, List<T>> getLoader() {
         return (c, s) -> {
             Collection<T> loaded = super.getLoader().apply(c, s);
             return loaded == null ? null : new ArrayList<>(loaded);
@@ -40,7 +39,7 @@ public class ListYAMLParser<T> extends CollectionYAMLParser<T, List<T>> {
     }
 
     @Override
-    protected @NotNull TriConsumer<@NotNull IConfiguration, @NotNull String, @Nullable List<T>> getDumper() {
+    protected @NotNull TriConsumer<IConfiguration, String, List<T>> getDumper() {
         return (c, s, o) -> {
             if (o != null && !o.isEmpty()) {
                 Object firstNonNull = o.stream().filter(Objects::nonNull).findFirst().orElse(null);

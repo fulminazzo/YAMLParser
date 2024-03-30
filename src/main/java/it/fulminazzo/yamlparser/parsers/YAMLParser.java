@@ -63,14 +63,14 @@ public abstract class YAMLParser<O> {
      *
      * @return the loader
      */
-    protected abstract BiFunctionException<@NotNull IConfiguration, @NotNull String, @Nullable O> getLoader();
+    protected abstract BiFunctionException<IConfiguration, String, O> getLoader();
 
     /**
      * Gets dumper.
      *
      * @return the dumper
      */
-    protected abstract TriConsumer<@NotNull IConfiguration, @NotNull String, @Nullable O> getDumper();
+    protected abstract TriConsumer<IConfiguration, String, O> getDumper();
 
     @Override
     public boolean equals(Object o) {

@@ -7,7 +7,6 @@ import it.fulminazzo.fulmicollection.utils.SerializeUtils;
 import it.fulminazzo.yamlparser.configuration.ConfigurationSection;
 import it.fulminazzo.yamlparser.configuration.IConfiguration;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -51,7 +50,7 @@ public class MapYAMLParser<K, V> extends YAMLParser<Map<K, V>> {
      * @return the loader
      */
     @Override
-    protected @NotNull BiFunctionException<@NotNull IConfiguration, @NotNull String, @Nullable Map<K, V>> getLoader() {
+    protected @NotNull BiFunctionException<IConfiguration, String, Map<K, V>> getLoader() {
         return (c, s) -> {
             ConfigurationSection section = c.getConfigurationSection(s);
             Class<V> oClass = null;
@@ -73,7 +72,7 @@ public class MapYAMLParser<K, V> extends YAMLParser<Map<K, V>> {
      * @return the dumper
      */
     @Override
-    protected @NotNull TriConsumer<@NotNull IConfiguration, @NotNull String, @NotNull Map<K, V>> getDumper() {
+    protected @NotNull TriConsumer<IConfiguration, String, Map<K, V>> getDumper() {
         return (c, s, m) -> {
             ConfigurationSection section = c.createSection(s);
             m.forEach((k, v) -> section.set(keyParser.apply(k), v));

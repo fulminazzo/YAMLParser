@@ -5,7 +5,6 @@ import it.fulminazzo.yamlparser.configuration.IConfiguration;
 import it.fulminazzo.fulmicollection.interfaces.functions.BiFunctionException;
 import it.fulminazzo.fulmicollection.interfaces.functions.TriConsumer;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
 import java.util.Arrays;
@@ -35,7 +34,7 @@ public class ArrayYAMLParser<T> extends YAMLParser<T[]> {
      * @return the loader
      */
     @Override
-    protected @NotNull BiFunctionException<@NotNull IConfiguration, @NotNull String, @Nullable T[]> getLoader() {
+    protected @NotNull BiFunctionException<IConfiguration, String, T[]> getLoader() {
         return (c, s) -> {
             List<T> tmp = listYamlParser.load(c, s);
             if (tmp == null) return null;
@@ -53,7 +52,7 @@ public class ArrayYAMLParser<T> extends YAMLParser<T[]> {
      * @return the dumper
      */
     @Override
-    protected @NotNull TriConsumer<@NotNull IConfiguration, @NotNull String, @NotNull T[]> getDumper() {
+    protected @NotNull TriConsumer<IConfiguration, String, T[]> getDumper() {
         return (c, s, o) -> {
             assert o != null;
             listYamlParser.dump(c, s, Arrays.asList(o));

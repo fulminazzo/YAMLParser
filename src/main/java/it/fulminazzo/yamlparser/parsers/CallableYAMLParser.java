@@ -9,7 +9,6 @@ import it.fulminazzo.yamlparser.configuration.IConfiguration;
 import it.fulminazzo.yamlparser.configuration.ConfigurationSection;
 import it.fulminazzo.yamlparser.utils.FileUtils;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -34,7 +33,7 @@ public class CallableYAMLParser<T> extends YAMLParser<T> {
     }
 
     @Override
-    protected @NotNull BiFunctionException<@NotNull IConfiguration, @NotNull String, @Nullable T> getLoader() {
+    protected @NotNull BiFunctionException<IConfiguration, String, T> getLoader() {
         return (c, s) -> {
             ConfigurationSection section = c.getConfigurationSection(s);
             if (section == null) return null;
@@ -52,7 +51,7 @@ public class CallableYAMLParser<T> extends YAMLParser<T> {
     }
 
     @Override
-    protected @NotNull TriConsumer<@NotNull IConfiguration, @NotNull String, @Nullable T> getDumper() {
+    protected @NotNull TriConsumer<IConfiguration, String, T> getDumper() {
         return (c, s, t) -> {
             c.set(s, null);
             if (t == null) return;

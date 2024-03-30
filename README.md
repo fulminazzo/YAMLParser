@@ -299,7 +299,7 @@ In this case, we remove the previous object and stop if the new one is null.
 Otherwise, we create the corresponding section and save the desired into it:
 ```java
     @Override
-    protected TriConsumer<@NotNull IConfiguration, @NotNull String, @NotNull Person> getDumper() {
+    protected TriConsumer<IConfiguration, String, Person> getDumper() {
         return (configuration, path, person) -> {
             if (configuration == null || path == null) return;
             if (person == null) return;
@@ -315,7 +315,7 @@ Otherwise, load the name and the age and create a new person with these values (
 **It is up to the user to handle any exception accordingly**, for example if age was null):
 ```java
     @Override
-    protected BiFunctionException<@NotNull IConfiguration, @NotNull String, @Nullable Person> getLoader() {
+    protected BiFunctionException<IConfiguration, String, Person> getLoader() {
         return (configuration, path) -> {
             if (configuration == null || path == null) return null;
             ConfigurationSection personSection = configuration.getConfigurationSection(path);

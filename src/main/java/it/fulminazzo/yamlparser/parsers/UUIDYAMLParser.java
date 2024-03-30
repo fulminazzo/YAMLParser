@@ -4,7 +4,6 @@ import it.fulminazzo.yamlparser.configuration.IConfiguration;
 import it.fulminazzo.fulmicollection.interfaces.functions.BiFunctionException;
 import it.fulminazzo.fulmicollection.interfaces.functions.TriConsumer;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
@@ -26,7 +25,7 @@ public class UUIDYAMLParser extends YAMLParser<UUID> {
      * @return the loader
      */
     @Override
-    protected @NotNull BiFunctionException<@NotNull IConfiguration, @NotNull String, @Nullable UUID> getLoader() {
+    protected @NotNull BiFunctionException<IConfiguration, String, UUID> getLoader() {
         return (c, s) -> {
             String raw = c.getString(s);
             return UUID.fromString(raw);
@@ -39,7 +38,7 @@ public class UUIDYAMLParser extends YAMLParser<UUID> {
      * @return the dumper
      */
     @Override
-    protected @NotNull TriConsumer<@NotNull IConfiguration, @NotNull String, @Nullable UUID> getDumper() {
+    protected @NotNull TriConsumer<IConfiguration, String, UUID> getDumper() {
         return (c, s, u) -> c.set(s, u == null ? null : u.toString());
     }
 }

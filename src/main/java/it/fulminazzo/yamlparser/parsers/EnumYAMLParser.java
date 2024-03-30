@@ -4,7 +4,6 @@ import it.fulminazzo.fulmicollection.interfaces.functions.BiFunctionException;
 import it.fulminazzo.fulmicollection.interfaces.functions.TriConsumer;
 import it.fulminazzo.yamlparser.configuration.IConfiguration;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * Enum YAML parser.
@@ -24,7 +23,7 @@ public class EnumYAMLParser<E extends Enum<E>> extends YAMLParser<E> {
     }
 
     @Override
-    protected @NotNull BiFunctionException<@NotNull IConfiguration, @NotNull String, @Nullable E> getLoader() {
+    protected @NotNull BiFunctionException<IConfiguration, String, E> getLoader() {
         return (c, s) -> {
             String enumString = c.getString(s);
             return E.valueOf(getOClass(), enumString);
@@ -32,7 +31,7 @@ public class EnumYAMLParser<E extends Enum<E>> extends YAMLParser<E> {
     }
 
     @Override
-    protected @NotNull TriConsumer<@NotNull IConfiguration, @NotNull String, @Nullable E> getDumper() {
+    protected @NotNull TriConsumer<IConfiguration, String, E> getDumper() {
         return (c, s, e) -> c.set(s, e == null ? null : e.name());
     }
 }
