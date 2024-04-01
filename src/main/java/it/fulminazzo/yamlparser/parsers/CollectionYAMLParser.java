@@ -1,8 +1,8 @@
 package it.fulminazzo.yamlparser.parsers;
 
-import it.fulminazzo.yamlparser.configuration.IConfiguration;
 import it.fulminazzo.fulmicollection.interfaces.functions.BiFunctionException;
 import it.fulminazzo.fulmicollection.interfaces.functions.TriConsumer;
+import it.fulminazzo.yamlparser.configuration.IConfiguration;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -23,13 +23,13 @@ class CollectionYAMLParser<T, C extends Collection<T>> extends YAMLParser<C> {
      *
      * @param aClass the class
      */
-    public CollectionYAMLParser(@NotNull Class<C> aClass) {
+    public CollectionYAMLParser(Class<C> aClass) {
         super(aClass);
         this.mapYamlParser = new MapYAMLParser<>(Integer::valueOf, Object::toString);
     }
 
     @Override
-    protected @NotNull BiFunctionException<IConfiguration, String, C> getLoader() {
+    protected BiFunctionException<IConfiguration, String, C> getLoader() {
         return (c, s) -> {
             if (c.isConfigurationSection(s)) {
                 @Nullable Map<Integer, T> map = mapYamlParser.load(c, s);
@@ -47,7 +47,7 @@ class CollectionYAMLParser<T, C extends Collection<T>> extends YAMLParser<C> {
     }
 
     @Override
-    protected @NotNull TriConsumer<IConfiguration, String, C> getDumper() {
+    protected TriConsumer<IConfiguration, String, C> getDumper() {
         return (c, s, o) -> {
             c.set(s, null);
             if (o == null) return;

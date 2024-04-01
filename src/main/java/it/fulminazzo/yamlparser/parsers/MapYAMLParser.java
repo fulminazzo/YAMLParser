@@ -50,7 +50,7 @@ public class MapYAMLParser<K, V> extends YAMLParser<Map<K, V>> {
      * @return the loader
      */
     @Override
-    protected @NotNull BiFunctionException<IConfiguration, String, Map<K, V>> getLoader() {
+    protected BiFunctionException<IConfiguration, String, Map<K, V>> getLoader() {
         return (c, s) -> {
             ConfigurationSection section = c.getConfigurationSection(s);
             Class<V> oClass = null;
@@ -72,7 +72,7 @@ public class MapYAMLParser<K, V> extends YAMLParser<Map<K, V>> {
      * @return the dumper
      */
     @Override
-    protected @NotNull TriConsumer<IConfiguration, String, Map<K, V>> getDumper() {
+    protected TriConsumer<IConfiguration, String, Map<K, V>> getDumper() {
         return (c, s, m) -> {
             ConfigurationSection section = c.createSection(s);
             m.forEach((k, v) -> section.set(keyParser.apply(k), v));

@@ -31,7 +31,7 @@ public class ListYAMLParser<T> extends CollectionYAMLParser<T, List<T>> {
      * @return the loader
      */
     @Override
-    protected @NotNull BiFunctionException<IConfiguration, String, List<T>> getLoader() {
+    protected BiFunctionException<IConfiguration, String, List<T>> getLoader() {
         return (c, s) -> {
             Collection<T> loaded = super.getLoader().apply(c, s);
             return loaded == null ? null : new ArrayList<>(loaded);
@@ -39,7 +39,7 @@ public class ListYAMLParser<T> extends CollectionYAMLParser<T, List<T>> {
     }
 
     @Override
-    protected @NotNull TriConsumer<IConfiguration, String, List<T>> getDumper() {
+    protected TriConsumer<IConfiguration, String, List<T>> getDumper() {
         return (c, s, o) -> {
             if (o != null && !o.isEmpty()) {
                 Object firstNonNull = o.stream().filter(Objects::nonNull).findFirst().orElse(null);

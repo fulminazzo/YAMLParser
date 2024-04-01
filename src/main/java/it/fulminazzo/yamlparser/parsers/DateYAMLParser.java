@@ -25,7 +25,7 @@ public class DateYAMLParser extends YAMLParser<Date> {
      * @return the loader
      */
     @Override
-    protected @NotNull BiFunctionException<IConfiguration, String, Date> getLoader() {
+    protected BiFunctionException<IConfiguration, String, Date> getLoader() {
         return (c, s) -> {
             Long l = c.getLong(s);
             return l == null ? null : new Date(l);
@@ -38,7 +38,7 @@ public class DateYAMLParser extends YAMLParser<Date> {
      * @return the dumper
      */
     @Override
-    protected @NotNull TriConsumer<IConfiguration, String, Date> getDumper() {
+    protected TriConsumer<IConfiguration, String, Date> getDumper() {
         return (c, s, d) -> c.set(s, d == null ? null : d.getTime());
     }
 }

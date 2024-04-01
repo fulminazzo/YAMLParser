@@ -25,7 +25,7 @@ public class UUIDYAMLParser extends YAMLParser<UUID> {
      * @return the loader
      */
     @Override
-    protected @NotNull BiFunctionException<IConfiguration, String, UUID> getLoader() {
+    protected BiFunctionException<IConfiguration, String, UUID> getLoader() {
         return (c, s) -> {
             String raw = c.getString(s);
             return UUID.fromString(raw);
@@ -38,7 +38,7 @@ public class UUIDYAMLParser extends YAMLParser<UUID> {
      * @return the dumper
      */
     @Override
-    protected @NotNull TriConsumer<IConfiguration, String, UUID> getDumper() {
+    protected TriConsumer<IConfiguration, String, UUID> getDumper() {
         return (c, s, u) -> c.set(s, u == null ? null : u.toString());
     }
 }

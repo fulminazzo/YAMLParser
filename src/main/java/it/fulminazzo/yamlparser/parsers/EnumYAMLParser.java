@@ -18,12 +18,12 @@ public class EnumYAMLParser<E extends Enum<E>> extends YAMLParser<E> {
      *
      * @param eClass the e class
      */
-    public EnumYAMLParser(@NotNull Class<?> eClass) {
+    public EnumYAMLParser(Class<?> eClass) {
         super((Class<E>) eClass);
     }
 
     @Override
-    protected @NotNull BiFunctionException<IConfiguration, String, E> getLoader() {
+    protected BiFunctionException<IConfiguration, String, E> getLoader() {
         return (c, s) -> {
             String enumString = c.getString(s);
             return E.valueOf(getOClass(), enumString);
@@ -31,7 +31,7 @@ public class EnumYAMLParser<E extends Enum<E>> extends YAMLParser<E> {
     }
 
     @Override
-    protected @NotNull TriConsumer<IConfiguration, String, E> getDumper() {
+    protected TriConsumer<IConfiguration, String, E> getDumper() {
         return (c, s, e) -> c.set(s, e == null ? null : e.name());
     }
 }

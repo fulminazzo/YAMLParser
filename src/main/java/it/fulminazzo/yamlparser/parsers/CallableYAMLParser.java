@@ -4,9 +4,9 @@ import it.fulminazzo.fulmicollection.interfaces.functions.BiFunctionException;
 import it.fulminazzo.fulmicollection.interfaces.functions.FunctionException;
 import it.fulminazzo.fulmicollection.interfaces.functions.TriConsumer;
 import it.fulminazzo.fulmicollection.utils.ReflectionUtils;
-import it.fulminazzo.yamlparser.parsers.annotations.PreventSaving;
-import it.fulminazzo.yamlparser.configuration.IConfiguration;
 import it.fulminazzo.yamlparser.configuration.ConfigurationSection;
+import it.fulminazzo.yamlparser.configuration.IConfiguration;
+import it.fulminazzo.yamlparser.parsers.annotations.PreventSaving;
 import it.fulminazzo.yamlparser.utils.FileUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -27,13 +27,13 @@ public class CallableYAMLParser<T> extends YAMLParser<T> {
      * @param tClass   the t class
      * @param function the function
      */
-    public CallableYAMLParser(@NotNull Class<T> tClass, FunctionException<ConfigurationSection, T> function) {
+    public CallableYAMLParser(Class<T> tClass, FunctionException<ConfigurationSection, T> function) {
         super(tClass);
         this.function = function;
     }
 
     @Override
-    protected @NotNull BiFunctionException<IConfiguration, String, T> getLoader() {
+    protected BiFunctionException<IConfiguration, String, T> getLoader() {
         return (c, s) -> {
             ConfigurationSection section = c.getConfigurationSection(s);
             if (section == null) return null;
@@ -51,7 +51,7 @@ public class CallableYAMLParser<T> extends YAMLParser<T> {
     }
 
     @Override
-    protected @NotNull TriConsumer<IConfiguration, String, T> getDumper() {
+    protected TriConsumer<IConfiguration, String, T> getDumper() {
         return (c, s, t) -> {
             c.set(s, null);
             if (t == null) return;

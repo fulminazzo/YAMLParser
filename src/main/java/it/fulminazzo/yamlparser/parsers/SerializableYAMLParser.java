@@ -26,7 +26,7 @@ public class SerializableYAMLParser extends YAMLParser<Serializable> {
      * @return the loader
      */
     @Override
-    protected @NotNull BiFunctionException<IConfiguration, String, Serializable> getLoader() {
+    protected BiFunctionException<IConfiguration, String, Serializable> getLoader() {
         return (c, s) -> {
             try {
                 String string = (String) c.getObject(s);
@@ -43,7 +43,7 @@ public class SerializableYAMLParser extends YAMLParser<Serializable> {
      * @return the dumper
      */
     @Override
-    protected @NotNull TriConsumer<IConfiguration, String, Serializable> getDumper() {
+    protected TriConsumer<IConfiguration, String, Serializable> getDumper() {
         return (c, s, ser) -> c.set(s, SerializeUtils.serializeToBase64(ser));
     }
 }

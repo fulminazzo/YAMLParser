@@ -1,11 +1,10 @@
 package it.fulminazzo.yamlparser.parsers;
 
 import it.fulminazzo.fulmicollection.exceptions.GeneralCannotBeNullException;
-import it.fulminazzo.yamlparser.configuration.IConfiguration;
 import it.fulminazzo.fulmicollection.interfaces.functions.BiFunctionException;
 import it.fulminazzo.fulmicollection.interfaces.functions.TriConsumer;
+import it.fulminazzo.yamlparser.configuration.IConfiguration;
 import lombok.Getter;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -17,14 +16,14 @@ import org.jetbrains.annotations.Nullable;
  */
 @Getter
 public abstract class YAMLParser<O> {
-    private final @NotNull Class<O> oClass;
+    private final Class<O> oClass;
 
     /**
      * Instantiates a new YAML parser.
      *
      * @param oClass the o class
      */
-    public YAMLParser(@NotNull Class<O> oClass) {
+    public YAMLParser(Class<O> oClass) {
         this.oClass = oClass;
     }
 
