@@ -829,11 +829,22 @@ public interface IConfiguration extends Serializable {
     default <T> @Nullable List<T> getList(@NotNull String path, @NotNull Class<T> clazz) {
         List<?> list = getObjectList(path);
         if (list == null) return null;
-        return list.stream()
-                .map(o -> o == null ? null : clazz.isAssignableFrom(o.getClass()) ? clazz.cast(o) :
-                        convertObjectToYAMLObject(path, o, clazz))
-                .filter(o -> check(path, o, clazz))
-                .collect(Collectors.toList());
+        List<T> actualList = new LinkedList<>();
+        for (int i = 0; i < list.size(); i++) {
+            Object o = list.get(i);
+            if (o == null) actualList.add(null);
+            else {
+                final T t;
+                if (clazz.isAssignableFrom(o.getClass())) t = clazz.cast(o);
+                else {
+                    String p = path + "." + i;
+                    t = convertObjectToYAMLObject(p, o, clazz);
+                    check(p, t, clazz);
+                }
+                actualList.add(t);
+            }
+        }
+        return actualList;
     }
 
     /**
