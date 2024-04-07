@@ -142,6 +142,28 @@ public interface IConfiguration extends Serializable {
     }
 
     /**
+     * Sets the given collection in a list format.
+     * <b>WARNING:</b> using this method will lose any information about the class of the objects.
+     * This might cause instabilities with some parsers like {@link it.fulminazzo.yamlparser.parsers.CallableYAMLParser}.
+     *
+     * @param <C>  the type parameter
+     * @param path the path
+     * @param c    the collection
+     */
+    default <C extends Collection<?>> void setList(@NotNull String path, @Nullable C c) {
+        set(path, c);
+        if (!isConfigurationSection(path)) return;
+        ConfigurationSection section = getConfigurationSection(path);
+        if (section == null) return;
+        List<Object> objects = new ArrayList<>();
+        for (String k : section.getKeys()) {
+            if (k.equals("value-class")) continue;
+            objects.add(section.getObject(k));
+        }
+        set(path, objects);
+    }
+
+    /**
      * Sets an object to the given path.
      *
      * @param <O>  the type of the object
