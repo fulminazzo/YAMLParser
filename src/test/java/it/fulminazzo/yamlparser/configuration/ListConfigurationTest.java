@@ -43,9 +43,10 @@ class ListConfigurationTest {
         configuration.save();
 
         configuration = new FileConfiguration(file);
-        List<Server> actual = configuration.getList("servers", Server.class);
 
-        assertEquals(expected, actual);
+        assertEquals(expected, configuration.getList("servers", Server.class));
+        assertEquals(expected, configuration.getList("servers", Server.class));
+        assertEquals(expected, configuration.getList("servers", Server.class));
     }
 
     private Server createServer(String ip, int port) {
