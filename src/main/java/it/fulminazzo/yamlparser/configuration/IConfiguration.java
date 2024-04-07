@@ -852,6 +852,8 @@ public interface IConfiguration extends Serializable {
     default <T> @Nullable List<T> getList(@NotNull String path, @NotNull Class<T> clazz) {
         List<?> list = getObjectList(path);
         if (list == null) return null;
+        if (list.isEmpty()) return new ArrayList<>();
+        if (IConfiguration.class.isAssignableFrom(clazz)) return (List<T>) list;
         List<T> actualList = new LinkedList<>();
         for (int i = 0; i < list.size(); i++) {
             Object o = list.get(i);
@@ -861,7 +863,14 @@ public interface IConfiguration extends Serializable {
                 if (clazz.isAssignableFrom(o.getClass())) t = clazz.cast(o);
                 else {
                     String p = path + "." + i;
+                    boolean contained = true;
+                    if (!contains(p)) {
+                        set(path, null);
+                        set(p, o);
+                        contained = false;
+                    }
                     t = convertObjectToYAMLObject(p, o, clazz);
+                    if (!contained) set(path, list);
                     check(p, t, clazz);
                 }
                 actualList.add(t);
