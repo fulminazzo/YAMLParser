@@ -104,6 +104,7 @@ public interface IConfiguration extends Serializable {
         if (sectionPath.isEmpty()) return toMap().containsKey(path);
         else {
             String p = sectionPath.get(0);
+            if (!isConfigurationSection(p)) return false;
             IConfiguration section = getConfigurationSection(p);
             return section != null && section.contains(removeFirstPath(path));
         }
