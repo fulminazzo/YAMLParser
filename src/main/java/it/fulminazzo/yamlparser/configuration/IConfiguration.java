@@ -880,6 +880,18 @@ public interface IConfiguration extends Serializable {
     }
 
     /**
+     * Returns an optional containing the result of {@link #getList(String, Class)}.
+     *
+     * @param <T>   the type parameter
+     * @param path  the path
+     * @param clazz the clazz
+     * @return the optional
+     */
+    default <T> @NotNull Optional<List<T>> getListOptional(@NotNull String path, @NotNull Class<T> clazz) {
+        return Optional.ofNullable(getList(path, clazz));
+    }
+
+    /**
      * Returns an optional containing the result of {@link #get(String, Class)}.
      *
      * @param <T>   the type parameter
