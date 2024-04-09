@@ -41,8 +41,11 @@ class CollectionYAMLParser<T, C extends Collection<T>> extends YAMLParser<C> {
                     result.set(k, map.get(k));
                 }
                 return (C) result;
+            } else {
+                Object o = c.getObject(s);
+                if (o == null || !getOClass().isAssignableFrom(o.getClass())) return null;
+                return (C) o;
             }
-            else return (C) c.getObject(s);
         };
     }
 
