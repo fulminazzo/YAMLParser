@@ -1067,15 +1067,19 @@ public interface IConfiguration extends Serializable {
      * @param e      the e
      */
     default void throwException(String path, Object object, Throwable e) {
-        if (e.getCause() != null && (e instanceof RuntimeException || e instanceof InvocationTargetException))
-            e = e.getCause();
         path = path == null ? "null" : path;
         String currentPath = getCurrentPath();
         if (currentPath != null && !currentPath.isEmpty()) path = currentPath + "." + path;
-        String message = e.getMessage();
-        if (e instanceof YAMLException) message = e.getMessage();
-        else message = e.getClass().getSimpleName() + " " + message;
-        throw new YAMLException(path, object, message);
+
+        if (e instanceof YAMLException) {
+            YAMLException yamlException = (YAMLException) e;
+            yamlException.setPath(path);
+            throw yamlException;
+        }
+
+        if (e.getCause() != null && (e instanceof RuntimeException || e instanceof InvocationTargetException))
+            e = e.getCause();
+        throw new YAMLException(path, object, e.getClass().getSimpleName() + " " + e.getMessage());
     }
 
     /**

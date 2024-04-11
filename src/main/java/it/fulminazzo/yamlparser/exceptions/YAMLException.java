@@ -2,6 +2,7 @@ package it.fulminazzo.yamlparser.exceptions;
 
 import it.fulminazzo.yamlparser.logging.LogMessage;
 import lombok.Getter;
+import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -10,8 +11,9 @@ import org.jetbrains.annotations.Nullable;
  * while working with IConfiguration instances.
  */
 @Getter
+@Setter
 public class YAMLException extends RuntimeException {
-    private final @NotNull String path;
+    private @NotNull String path;
     private final @NotNull String name;
     private final @Nullable Object object;
 
