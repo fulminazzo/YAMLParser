@@ -8,10 +8,10 @@ import it.fulminazzo.yamlparser.configuration.ConfigurationSection;
 import it.fulminazzo.yamlparser.configuration.IConfiguration;
 import it.fulminazzo.yamlparser.parsers.annotations.PreventSaving;
 import it.fulminazzo.yamlparser.utils.FileUtils;
-import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.List;
 
 /**
  * Callable YAML parser.
@@ -42,7 +42,11 @@ public class CallableYAMLParser<T> extends YAMLParser<T> {
             for (Field field : ReflectionUtils.getFields(t)) {
                 if (Modifier.isStatic(field.getModifiers())) continue;
                 if (field.isAnnotationPresent(PreventSaving.class)) continue;
-                Object object = section.get(FileUtils.formatStringToYaml(field.getName()), field.getType());
+                final String path = FileUtils.formatStringToYaml(field.getName());
+                final Class<?> fieldType = field.getType();
+                final Object object;
+                if (List.class.isAssignableFrom(fieldType)) object = section.getObjectList(path);
+                else object = section.get(path, fieldType);
                 if (object == null) continue;
                 field.set(t, object);
             }
