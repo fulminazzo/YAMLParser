@@ -1072,7 +1072,10 @@ public interface IConfiguration extends Serializable {
         path = path == null ? "null" : path;
         String currentPath = getCurrentPath();
         if (currentPath != null && !currentPath.isEmpty()) path = currentPath + "." + path;
-        throw new YAMLException(path, object, e.getClass().getSimpleName() + " " + e.getMessage());
+        String message = e.getMessage();
+        if (e instanceof YAMLException) message = e.getMessage();
+        else message = e.getClass().getSimpleName() + " " + message;
+        throw new YAMLException(path, object, message);
     }
 
     /**
