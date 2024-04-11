@@ -31,8 +31,6 @@ class CollectionYAMLParser<T, C extends Collection<T>> extends YAMLParser<C> {
     @Override
     protected BiFunctionException<IConfiguration, String, C> getLoader() {
         return (c, s) -> {
-            System.out.println(c);
-            System.out.println(s);
             if (c.isConfigurationSection(s)) {
                 @Nullable Map<Integer, T> map = mapYamlParser.load(c, s);
                 if (map == null) return null;
