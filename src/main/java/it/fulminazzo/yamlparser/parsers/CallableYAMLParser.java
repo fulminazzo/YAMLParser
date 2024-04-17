@@ -3,6 +3,7 @@ package it.fulminazzo.yamlparser.parsers;
 import it.fulminazzo.fulmicollection.interfaces.functions.BiFunctionException;
 import it.fulminazzo.fulmicollection.interfaces.functions.FunctionException;
 import it.fulminazzo.fulmicollection.interfaces.functions.TriConsumer;
+import it.fulminazzo.fulmicollection.structures.tuples.Singlet;
 import it.fulminazzo.fulmicollection.utils.ReflectionUtils;
 import it.fulminazzo.yamlparser.configuration.ConfigurationSection;
 import it.fulminazzo.yamlparser.configuration.IConfiguration;
@@ -12,6 +13,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.stream.Stream;
 
 /**
  * Callable YAML parser.
@@ -37,15 +39,19 @@ public class CallableYAMLParser<T> extends YAMLParser<T> {
         return (c, s) -> {
             ConfigurationSection section = c.getConfigurationSection(s);
             if (section == null) return null;
-            T t = function.apply(section);
+            final T t = function.apply(section);
             if (t == null) return null;
-            for (Field field : ReflectionUtils.getFields(t)) {
-                if (Modifier.isStatic(field.getModifiers())) continue;
-                if (field.isAnnotationPresent(PreventSaving.class)) continue;
-                Object object = section.get(FileUtils.formatStringToYaml(field.getName()), field.getType());
-                if (object == null) continue;
-                field.set(t, object);
-            }
+            objectFields(t).forEach(f -> {
+                if (Modifier.isStatic(f.getModifiers())) return;
+                if (f.isAnnotationPresent(PreventSaving.class)) return;
+                Object object = section.get(FileUtils.formatStringToYaml(f.getName()), f.getType());
+                if (object == null) return;
+                try {
+                    f.set(t, object);
+                } catch (IllegalAccessException e) {
+                    throw new RuntimeException(e);
+                }
+            });
             return t;
         };
     }
@@ -56,16 +62,23 @@ public class CallableYAMLParser<T> extends YAMLParser<T> {
             c.set(s, null);
             if (t == null) return;
             ConfigurationSection section = c.createSection(s);
-            ReflectionUtils.getFields(t).forEach(field -> {
-                if (Modifier.isStatic(field.getModifiers())) return;
-                if (field.isAnnotationPresent(PreventSaving.class)) return;
-                String fieldName = field.getName();
+            objectFields(t).forEach(f -> {
+                if (Modifier.isStatic(f.getModifiers())) return;
+                if (f.isAnnotationPresent(PreventSaving.class)) return;
+                String fieldName = f.getName();
                 try {
-                    section.set(FileUtils.formatStringToYaml(fieldName), field.get(t));
+                    section.set(FileUtils.formatStringToYaml(fieldName), f.get(t));
                 } catch (IllegalAccessException e) {
                     throw new RuntimeException(e);
                 }
             });
         };
+    }
+
+    private static <T> @NotNull Stream<Field> objectFields(final @NotNull T t) {
+        return ReflectionUtils.getFields(t).stream()
+                .map(ReflectionUtils::setAccessible)
+                .filter(f -> f.isPresent())
+                .map(Singlet::getValue);
     }
 }
