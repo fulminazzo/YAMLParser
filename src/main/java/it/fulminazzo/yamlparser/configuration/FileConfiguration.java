@@ -186,7 +186,8 @@ public final class FileConfiguration extends SimpleConfiguration {
     /**
      * Gets the parser from the associated class.
      *
-     * @param <O>    the type parameter
+     * @param <O>    the type of the parser
+     * @param <E>    the type of the enum
      * @param oClass the class
      * @return the parser
      */
