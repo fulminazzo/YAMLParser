@@ -3,7 +3,7 @@
 This project aims to provide a simple way of **accessing data** from **YAML files**.
 It uses the following **libraries**: 
 - [SnakeYAML](https://bitbucket.org/snakeyaml/snakeyaml/src/master/)
-- [FulmiCollection](https://github.com/Fulminazzo/FulmiCollection)
+- [FulmiCollection](https://github.com/fulminazzo/FulmiCollection)
 
 To start using the project, import it with Maven or Gradle:
 - **Maven**:
@@ -47,7 +47,7 @@ a way of interfacing with YAML files and retrieving **non-primitive data objects
 YAMLParser mimics it by providing its own implementation (therefore becoming **independent** of the Bukkit library), while also giving a way to access [user defined objects](#yamlparser).
 
 ## IConfiguration
-The base of **YAMLParser** is [IConfiguration](https://github.com/Fulminazzo/YAMLParser/blob/master/src/main/java/it/fulminazzo/yamlparser/interfaces/IConfiguration.java).
+The base of **YAMLParser** is [IConfiguration](https://github.com/fulminazzo/YAMLParser/blob/master/src/main/java/it/fulminazzo/yamlparser/interfaces/IConfiguration.java).
 This interface presents a variety of **methods** and **functions** to work with data. Here are some of the most important ones:
 - ```getKeys(boolean deep)```: returns a **Set** containing every **key** in the YAML file. If ```deep``` is set to ```true```, it returns also the **keys** from every **subsection**;
 - ```getValues(boolean deep)```: returns a **Map** containing every **key-value** pair in the YAML file. If ```deep``` is set to ```true```, it returns also the **pairs** from every **subsection**;
@@ -102,8 +102,8 @@ This interface presents a variety of **methods** and **functions** to work with 
 - ```print()```: **prints** the **contents** of the configuration.
 
 When invoking a method of type ```get```, the library will also check:
-- if the **object** is **found**, but is of **different type** from expected. This will throw an [UnexpectedClassException](https://github.com/Fulminazzo/YAMLParser/blob/master/src/main/java/it/fulminazzo/yamlparser/exceptions/yamlexceptions/UnexpectedClassException.java);
-- by default, it will **ignore null objects**. However, if you use ```setNonNull(true)```, every null object will throw a [CannotBeNullException](https://github.com/Fulminazzo/YAMLParser/blob/master/src/main/java/it/fulminazzo/yamlparser/exceptions/yamlexceptions/CannotBeNullException.java);.
+- if the **object** is **found**, but is of **different type** from expected. This will throw an [UnexpectedClassException](https://github.com/fulminazzo/YAMLParser/blob/master/src/main/java/it/fulminazzo/yamlparser/exceptions/yamlexceptions/UnexpectedClassException.java);
+- by default, it will **ignore null objects**. However, if you use ```setNonNull(true)```, every null object will throw a [CannotBeNullException](https://github.com/fulminazzo/YAMLParser/blob/master/src/main/java/it/fulminazzo/yamlparser/exceptions/yamlexceptions/CannotBeNullException.java);.
 
 Now that we have covered the basics, we can look into some implementations of the **IConfiguration** interface.
 
