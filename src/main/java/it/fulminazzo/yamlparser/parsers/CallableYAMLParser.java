@@ -21,7 +21,7 @@ import java.util.stream.Stream;
  * @param <T> the type of the returned object
  */
 public class CallableYAMLParser<T> extends YAMLParser<T> {
-    private final FunctionException<ConfigurationSection, T> function;
+    private final FunctionException<ConfigurationSection, T, Exception> function;
 
     /**
      * Instantiates a new Callable YAML parser.
@@ -29,13 +29,13 @@ public class CallableYAMLParser<T> extends YAMLParser<T> {
      * @param tClass   the t class
      * @param function the function
      */
-    public CallableYAMLParser(Class<T> tClass, FunctionException<ConfigurationSection, T> function) {
+    public CallableYAMLParser(Class<T> tClass, FunctionException<ConfigurationSection, T, Exception> function) {
         super(tClass);
         this.function = function;
     }
 
     @Override
-    protected BiFunctionException<IConfiguration, String, T> getLoader() {
+    protected BiFunctionException<IConfiguration, String, T, Exception> getLoader() {
         return (c, s) -> {
             ConfigurationSection section = c.getConfigurationSection(s);
             if (section == null) return null;

@@ -62,7 +62,7 @@ public abstract class YAMLParser<O> {
      *
      * @return the loader
      */
-    protected abstract BiFunctionException<IConfiguration, String, O> getLoader();
+    protected abstract BiFunctionException<IConfiguration, String, O, Exception> getLoader();
 
     /**
      * Gets dumper.

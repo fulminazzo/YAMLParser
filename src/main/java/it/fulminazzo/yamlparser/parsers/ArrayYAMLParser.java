@@ -34,7 +34,7 @@ public class ArrayYAMLParser<T> extends YAMLParser<T[]> {
      * @return the loader
      */
     @Override
-    protected BiFunctionException<IConfiguration, String, T[]> getLoader() {
+    protected BiFunctionException<IConfiguration, String, T[], Exception> getLoader() {
         return (c, s) -> {
             List<T> tmp = listYamlParser.load(c, s);
             if (tmp == null) return null;

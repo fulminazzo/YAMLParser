@@ -25,7 +25,7 @@ public class UUIDYAMLParser extends YAMLParser<UUID> {
      * @return the loader
      */
     @Override
-    protected BiFunctionException<IConfiguration, String, UUID> getLoader() {
+    protected BiFunctionException<IConfiguration, String, UUID, Exception> getLoader() {
         return (c, s) -> {
             String raw = c.getString(s);
             return UUID.fromString(raw);

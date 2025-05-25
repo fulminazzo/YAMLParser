@@ -23,7 +23,7 @@ public class EnumYAMLParser<E extends Enum<E>> extends YAMLParser<E> {
     }
 
     @Override
-    protected BiFunctionException<IConfiguration, String, E> getLoader() {
+    protected BiFunctionException<IConfiguration, String, E, Exception> getLoader() {
         return (c, s) -> {
             String enumString = c.getString(s);
             return enumString == null ? null : E.valueOf(getOClass(), enumString.toUpperCase());

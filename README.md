@@ -250,7 +250,7 @@ class Person {
 ```
 All you have to do is invoke the **CallableYAMLParser** constructor:
 ```java
-public CallableYAMLParser(Class<T> tClass, FunctionException<ConfigurationSection, T> function);
+public CallableYAMLParser(Class<T> tClass, FunctionException<ConfigurationSection, T, Exception> function);
 ```
 and pass it the **target class** and a **function** that returns an **empty Person**.
 The parser will automatically **save every field** and **load them** from file.
@@ -315,7 +315,7 @@ Otherwise, load the name and the age and create a new person with these values (
 **It is up to the user to handle any exception accordingly**, for example if age was null):
 ```java
     @Override
-    protected BiFunctionException<IConfiguration, String, Person> getLoader() {
+    protected BiFunctionException<IConfiguration, String, Person, Exception> getLoader() {
         return (configuration, path) -> {
             if (configuration == null || path == null) return null;
             ConfigurationSection personSection = configuration.getConfigurationSection(path);

@@ -1,8 +1,7 @@
 package it.fulminazzo.yamlparser.parsers;
 
-import it.fulminazzo.yamlparser.configuration.IConfiguration;
 import it.fulminazzo.fulmicollection.interfaces.functions.BiFunctionException;
-import org.jetbrains.annotations.NotNull;
+import it.fulminazzo.yamlparser.configuration.IConfiguration;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
@@ -30,7 +29,7 @@ public class SetYAMLParser<T> extends CollectionYAMLParser<T, Set<T>> {
      * @return the loader
      */
     @Override
-    protected BiFunctionException<IConfiguration, String, Set<T>> getLoader() {
+    protected BiFunctionException<IConfiguration, String, Set<T>, Exception> getLoader() {
         return (c, s) -> {
             @Nullable Collection<T> object = super.getLoader().apply(c, s);
             return new HashSet<>(object);

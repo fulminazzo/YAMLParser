@@ -26,7 +26,7 @@ public class SerializableYAMLParser extends YAMLParser<Serializable> {
      * @return the loader
      */
     @Override
-    protected BiFunctionException<IConfiguration, String, Serializable> getLoader() {
+    protected BiFunctionException<IConfiguration, String, Serializable, Exception> getLoader() {
         return (c, s) -> {
             try {
                 String string = (String) c.getObject(s);

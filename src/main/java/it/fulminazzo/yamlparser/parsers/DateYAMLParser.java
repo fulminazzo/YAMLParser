@@ -25,7 +25,7 @@ public class DateYAMLParser extends YAMLParser<Date> {
      * @return the loader
      */
     @Override
-    protected BiFunctionException<IConfiguration, String, Date> getLoader() {
+    protected BiFunctionException<IConfiguration, String, Date, Exception> getLoader() {
         return (c, s) -> {
             Long l = c.getLong(s);
             return l == null ? null : new Date(l);

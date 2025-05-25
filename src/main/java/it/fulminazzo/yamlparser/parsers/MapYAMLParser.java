@@ -50,7 +50,7 @@ public class MapYAMLParser<K, V> extends YAMLParser<Map<K, V>> {
      * @return the loader
      */
     @Override
-    protected BiFunctionException<IConfiguration, String, Map<K, V>> getLoader() {
+    protected BiFunctionException<IConfiguration, String, Map<K, V>, Exception> getLoader() {
         return (c, s) -> {
             ConfigurationSection section = c.getConfigurationSection(s);
             Class<V> oClass = null;

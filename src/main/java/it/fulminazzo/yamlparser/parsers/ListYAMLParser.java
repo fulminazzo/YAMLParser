@@ -1,9 +1,8 @@
 package it.fulminazzo.yamlparser.parsers;
 
+import it.fulminazzo.fulmicollection.interfaces.functions.BiFunctionException;
 import it.fulminazzo.fulmicollection.interfaces.functions.TriConsumer;
 import it.fulminazzo.yamlparser.configuration.IConfiguration;
-import it.fulminazzo.fulmicollection.interfaces.functions.BiFunctionException;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -31,7 +30,7 @@ public class ListYAMLParser<T> extends CollectionYAMLParser<T, List<T>> {
      * @return the loader
      */
     @Override
-    protected BiFunctionException<IConfiguration, String, List<T>> getLoader() {
+    protected BiFunctionException<IConfiguration, String, List<T>, Exception> getLoader() {
         return (c, s) -> {
             Collection<T> loaded = super.getLoader().apply(c, s);
             return loaded == null ? null : new ArrayList<>(loaded);
